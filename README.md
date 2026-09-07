@@ -261,13 +261,16 @@ The news feed updates headlines only. **Organisers enter starting roles, recruit
 
 1. Agree scoring values under **Organiser → Scoring values**.
 2. Add players and collect their three preseason Traitor predictions. Players choose **Make preseason picks** on Standings, or open **My picks**, which defaults to preseason while predictions are open. They select exactly three celebrities and click **Save picks**; no roles, roster setup or captain are required.
-3. Lock preseason predictions before the first broadcast. This also freezes scoring values for the season.
-4. After the reveal, record the original roles under **Season controls → Record starting roles after episode 1** and save.
+3. Collect a **separate episode 1 team** using **Pick episode 1 team** on Standings (or **My picks → Episode team → Episode 1**). The default is **any eight eligible celebrities plus a captain**, with no role quotas. Organisers can change **Episode 1 team size** before teams are submitted.
+4. Before the first broadcast, lock **both** preseason predictions in Season controls and episode 1 drafts in Episode setup & scoring. These are independent locks. The preseason lock also freezes scoring values for the season.
+5. After the reveal, record the original roles under **Season controls → Record starting roles after episode 1** and save. Do not change episode 1’s frozen roster.
+
+Episode 1 scores only rules labelled **Any role**: shields, missions, confessionals, role-neutral voting events and other universal bonuses/penalties. Captaincy doubles these points, including penalties. Traitor- and Faithful-specific counts do not contribute to episode 1, even if older data contains them. These team points appear in the leaderboard’s Weekly column; the three original-Traitor predictions keep their separate Preseason score.
 
 ### Each episode
 
-1. In **Episode setup & scoring**, select episode 1, copy the starting roles into its roster and save. This provides the starting point for later episodes.
-2. Before each later episode, copy the previous episode's roster, update roles and eliminations, and save. These describe who is active **before** that episode. A celebrity eliminated during episode 2 should become unavailable in episode 3's roster.
+1. For episode 1, check the team size and eligible cast before collecting picks. No role setup is required.
+2. For episode 2, choose **Copy starting roles**, update anyone eliminated during episode 1, and save. For episodes 3–9, copy the previous episode's roster, update roles and eliminations, and save. These describe who is active **before** that episode. A celebrity eliminated during episode 2 should become unavailable in episode 3's roster.
 3. Check the draft slot counts. Defaults are 2 Traitors + 6 Faithful for episodes 2–6, then 1 + 3 for episodes 7–9. Adjust before players submit if the available cast requires it.
 4. Players choose a fresh team and a captain. Celebrities can appear on multiple players' teams. The captain doubles positive and negative points.
 5. Manually lock that episode's drafts before broadcast. Its roster and draft requirements then become fixed.
@@ -289,6 +292,17 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 | Scores, draft eligibility and player roles | Save through the Organiser controls. |
 
 For organiser management on an older installation, run [migrations/20260907_organisers.sql](migrations/20260907_organisers.sql) in Supabase, then refresh the website. This migration can be rerun and preserves players, picks, scores and existing organiser roles. Fresh installs using the current `schema.sql` already include it.
+
+### Enable episode 1 teams on an existing league
+
+1. Download a league backup from **Organiser**.
+2. Open [migrations/20260907_episode_one.sql](migrations/20260907_episode_one.sql) in GitHub and copy the **whole file**.
+3. Open your existing project in [Supabase](https://supabase.com/dashboard), choose **SQL Editor → New query**, paste the SQL and click **Run**.
+4. Wait for **Success**, then refresh the website. Standings will show **Pick episode 1 team** if that episode is open. Under **Organiser → Episode 1**, the default team size is 8.
+
+The migration updates two database functions and adds the episode 1 size. It preserves players, saved predictions, scores, cast history and locks, and is safe to rerun. If episode 1 is already locked, it stays locked; the migration does not reopen it. Later episodes keep their role quotas. No paid service or extra hosting is needed.
+
+Until this upgrade is run, the updated website keeps the existing episode 2–9 draft flow. Fresh installations using the current `schema.sql` and `seed.sql` already include episode 1.
 
 Do not rerun `schema.sql` or `seed.sql` as a routine update. They are initial setup files, not migrations.
 
@@ -318,6 +332,7 @@ Plan details checked **7 September 2026**. This setup is designed for a small le
 | No **Organiser** tab | Check the signed-in email is the organiser's email. If just promoted, refresh. |
 | **Organiser permissions are not available yet** | Run `migrations/20260907_organisers.sql` on the existing project and refresh. |
 | Emails still have default wording | Save both Magic Link and Confirm signup in Supabase, then request a new email. GitHub changes do not update hosted templates. |
+| Episode 1 is missing from Episode team | Run `migrations/20260907_episode_one.sql` on the existing project and refresh. |
 | No celebrities available for a weekly draft | Set that episode's active roster, known roles and slot counts under Organiser, then save. |
 | **The league changed in another window** | Refresh to load the latest data, then reapply your changes. |
 | Headlines are stale | Check **Actions → Refresh season news** and Cloudflare's latest build. The site keeps cached headlines if a refresh fails. |

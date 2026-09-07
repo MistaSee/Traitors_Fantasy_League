@@ -31,7 +31,7 @@ npm test
 python3 -m unittest discover -s tests -p 'test_news.py'
 ```
 
-These are the checks run by [.github/workflows/test.yml](../.github/workflows/test.yml). The five engine cases cover workbook seed integrity, draft validation, preseason roles, captain doubling, historical eligibility and final predictions. Five additional edit-state cases cover unsaved changes, reverted changes, navigation scope and preservation of other sections after saving. News tests cover parsing, source/date filtering and deduplication.
+These are the checks run by [.github/workflows/test.yml](../.github/workflows/test.yml). The engine cases cover workbook seed integrity, draft validation, preseason roles, captain doubling, historical eligibility, final predictions and episode 1 teams with neutral-only scoring. Five additional edit-state cases cover unsaved changes, reverted changes, navigation scope and preservation of other sections after saving. News tests cover parsing, source/date filtering and deduplication.
 
 For the optional database and browser checks, install their local dependencies:
 
@@ -41,7 +41,7 @@ npx playwright install chromium
 node tests/database.mjs
 ```
 
-The database suite runs the real SQL in an isolated PGlite database. It covers ordinary-player preseason submissions before any roles are revealed, preseason lock enforcement, access permissions, private drafts, validation, locked rounds, revision conflicts, adding players, organiser promotion/demotion, last-organiser protection and preservation of data when upgrading the old RPCs. It does not connect to your hosted Supabase project.
+The database suite runs the real SQL in an isolated PGlite database. It covers ordinary-player preseason submissions before any roles are revealed, preseason lock enforcement, access permissions, private drafts, validation, locked rounds, revision conflicts, adding players, organiser promotion/demotion, last-organiser protection and preservation of data when upgrading the old RPCs. The included `tests/episode-one.database.mjs` suite also checks the episode 1 migration, repeatability, existing-data preservation, independent locks, team-size validation and neutral-only scoring. It does not connect to your hosted Supabase project.
 
 For the browser suite, start the server on port 8765 **from a disposable demo copy with blank connection values**, then run this in another terminal in that copy:
 

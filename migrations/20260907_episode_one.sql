@@ -1,28 +1,9 @@
--- Run once in the Supabase SQL editor. All application access is through RPCs.
-create table public.league_config (id integer primary key check(id=1), state jsonb not null, revision integer not null default 0);
-create table public.league_players (id uuid primary key default gen_random_uuid(), email text unique not null check(email=lower(email)), name text not null, is_admin boolean not null default false);
-create table public.league_entries (player_id uuid references public.league_players(id), kind text check(kind in ('weekly','preseason','final')), episode integer not null, payload jsonb not null, updated_at timestamptz not null default now(), primary key(player_id,kind,episode));
-alter table public.league_config enable row level security;
-alter table public.league_players enable row level security;
-alter table public.league_entries enable row level security;
-revoke all on public.league_config, public.league_players, public.league_entries from anon, authenticated;
+-- Enable episode 1 teams on an existing league. Run this whole file in Supabase SQL Editor.
+-- Preserves players, predictions, event counts, roster history and all existing locks.
+-- Existing episode 1 team sizes are retained. Safe to run again.
+begin;
 
-create function public.read_league() returns jsonb language plpgsql security definer set search_path = '' as $$
-declare me public.league_players; cfg public.league_config; result jsonb;
-begin
- select * into me from public.league_players where email=lower(auth.jwt()->>'email') and auth.uid() is not null;
- if me.id is null then raise exception 'Your email is not on this league. Ask the organiser to add it.'; end if;
- select * into cfg from public.league_config where id=1;
- select jsonb_build_object('state',cfg.state,'revision',cfg.revision,'me',jsonb_build_object('id',me.id,'name',me.name,'is_admin',me.is_admin),
- 'players',(select coalesce(jsonb_agg(jsonb_build_object('id',id,'name',name,'email',case when me.is_admin then email else null end,'is_admin',is_admin)),'[]'::jsonb) from public.league_players),
- 'entries',(select coalesce(jsonb_agg(to_jsonb(e)),'[]'::jsonb) from public.league_entries e where e.player_id=me.id or
-   (e.kind='preseason' and (cfg.state->>'preseasonLocked')::boolean) or
-   (e.kind='final' and (cfg.state->>'finalLocked')::boolean) or
-   (e.kind='weekly' and (cfg.state->'episodes'->(e.episode-1)->>'locked')::boolean))) into result;
- return result;
-end $$;
-
-create function public.save_entry(entry_kind text, episode_number integer, entry_payload jsonb) returns void language plpgsql security definer set search_path = '' as $$
+create or replace function public.save_entry(entry_kind text, episode_number integer, entry_payload jsonb) returns void language plpgsql security definer set search_path = '' as $$
 declare me uuid; s jsonb; ep jsonb; picks jsonb; n integer; t integer; f integer; valid integer;
 begin
  select id into me from public.league_players where email=lower(auth.jwt()->>'email') and auth.uid() is not null;
@@ -64,7 +45,7 @@ begin
  on conflict(player_id,kind,episode) do update set payload=excluded.payload,updated_at=now();
 end $$;
 
-create function public.save_league(new_state jsonb, expected_revision integer) returns void language plpgsql security definer set search_path = '' as $$
+create or replace function public.save_league(new_state jsonb, expected_revision integer) returns void language plpgsql security definer set search_path = '' as $$
 declare old public.league_config; ep jsonb; e public.league_entries; p text; t integer; f integer; c jsonb; count_value jsonb;
 begin
  if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
@@ -113,38 +94,13 @@ begin
  update public.league_config set state=new_state, revision=revision+1 where id=1;
 end $$;
 
-create function public.export_league() returns jsonb language plpgsql security definer set search_path = '' as $$
-begin
- if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
- return jsonb_build_object('config',(select to_jsonb(c) from public.league_config c where id=1),'players',(select coalesce(jsonb_agg(to_jsonb(p)),'[]'::jsonb) from public.league_players p),'entries',(select coalesce(jsonb_agg(to_jsonb(e)),'[]'::jsonb) from public.league_entries e));
-end $$;
-revoke all on function public.export_league() from public, anon;
-grant execute on function public.export_league() to authenticated;
+revoke all on function public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer) from public, anon;
+grant execute on function public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer) to authenticated;
 
-create function public.add_player(player_email text, player_name text) returns void language plpgsql security definer set search_path = '' as $$
-begin
- if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
- if length(trim(player_name))<1 or length(player_name)>80 or player_email not like '%@%.%' then raise exception 'Enter a name and valid email'; end if;
- insert into public.league_players(email,name) values(lower(trim(player_email)),trim(player_name));
-end $$;
+-- Advance the revision so an organiser's already-open page cannot overwrite this setting.
+update public.league_config
+set state=jsonb_set(state,'{episodes,0,teamSize}','8'::jsonb), revision=revision+1
+where id=1 and not (state->'episodes'->0 ? 'teamSize');
 
-revoke all on function public.read_league(), public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer), public.add_player(text,text) from public, anon;
-grant execute on function public.read_league(), public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer), public.add_player(text,text) to authenticated;
-
-create or replace function public.set_player_organiser(target_player_id uuid, organiser boolean) returns void language plpgsql security definer set search_path = '' as $$
-declare target public.league_players;
-begin
- -- Serialise role changes so concurrent demotions cannot remove every organiser.
- perform 1 from public.league_config where id=1 for update;
- if not found then raise exception 'League is not initialised'; end if;
- if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
- if organiser is null then raise exception 'Choose Player or Organiser'; end if;
- select * into target from public.league_players where id=target_player_id;
- if target.id is null then raise exception 'Player not found'; end if;
- if target.is_admin and not organiser and (select count(*) from public.league_players where is_admin)<=1 then
-   raise exception 'The league must keep at least one organiser';
- end if;
- update public.league_players set is_admin=organiser where id=target_player_id;
-end $$;
-revoke all on function public.set_player_organiser(uuid,boolean) from public, anon;
-grant execute on function public.set_player_organiser(uuid,boolean) to authenticated;
+notify pgrst, 'reload schema';
+commit;

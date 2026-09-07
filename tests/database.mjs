@@ -107,3 +107,4 @@ await db.exec('reset role; set role anon');
 await assert.rejects(()=>db.query('select public.set_player_organiser($1,true)',[playerId]),/permission denied/);
 console.log('Database passed: ordinary-player preseason submissions before role reveals, preseason lock enforcement, membership, draft privacy, scoring locks, revisions, organiser permissions, last-organiser protection and repeatable migration preserving league data.');
 await db.close();
+await import('./episode-one.database.mjs');

@@ -512,7 +512,8 @@
       "faithful": 0,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "teamSize": 8
     },
     {
       "number": 2,

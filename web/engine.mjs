@@ -1,18 +1,29 @@
+export function episodeOneTeamSize(state) {
+  const size = state.episodes.find(e => e.number === 1)?.teamSize;
+  return Number.isInteger(size) && size > 0 ? size : 0;
+}
 export function validateDraft(state, episode, picks, captain) {
   const ep = state.episodes.find(e => e.number === episode);
-  if (!ep || episode === 1) return 'Choose an episode from 2 onwards.';
+  if (!ep) return 'Choose an episode from 1 to 9.';
+  const opening = episode === 1;
+  if (opening && !episodeOneTeamSize(state)) return 'Episode 1 teams are not enabled for this league yet.';
   if (ep.locked) return 'This episode is locked.';
-  if (picks.length !== ep.traitors + ep.faithful) return `Choose ${ep.traitors} Traitors and ${ep.faithful} Faithful.`;
+  if (opening && picks.length !== ep.teamSize) return `Choose ${ep.teamSize} celebrities of any role.`;
+  if (!opening && picks.length !== ep.traitors + ep.faithful) return `Choose ${ep.traitors} Traitors and ${ep.faithful} Faithful.`;
   if (new Set(picks).size !== picks.length) return 'Choose each celebrity only once.';
   if (!picks.includes(captain)) return 'Choose a captain from your team.';
-  const roster = picks.map(id => ep.roster[id]);
+  if (picks.some(id => !state.characters.some(c => c.id === id))) return 'Choose celebrities from this season’s cast.';
+  const roster = picks.map(id => opening ? {status:ep.roster[id]?.status || 'Active'} : ep.roster[id]);
   if (roster.some(c => !c || c.status !== 'Active')) return 'Only active celebrities can be drafted.';
-  if (roster.filter(c => c.role === 'Traitor').length !== ep.traitors || roster.filter(c => c.role === 'Faithful').length !== ep.faithful) return 'The team has the wrong mix of roles.';
+  if (!opening && (roster.filter(c => c.role === 'Traitor').length !== ep.traitors || roster.filter(c => c.role === 'Faithful').length !== ep.faithful)) return 'The team has the wrong mix of roles.';
   return '';
+}
+export function episodeScoringRules(state, episode) {
+  return episode === 1 ? state.rules.filter(rule => rule.role === 'Any') : state.rules;
 }
 export function characterPoints(state, episode, id) {
   const ep = state.episodes.find(e => e.number === episode);
-  return state.rules.reduce((sum, r) => sum + (ep?.counts[id]?.[r.id] || 0) * r.points, 0);
+  return episodeScoringRules(state, episode).reduce((sum, r) => sum + (ep?.counts[id]?.[r.id] || 0) * r.points, 0);
 }
 export function score(state, entries, playerId) {
   let preseason = 0, final = 0, weekly = 0;

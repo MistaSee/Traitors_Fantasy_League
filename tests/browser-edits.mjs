@@ -88,11 +88,12 @@ export async function checkEdits(page) {
   // A valid saved state survives reload without a discard prompt.
   await page.reload();
   await button('Organiser').click();
+  await page.locator('#admin-episode').selectOption('2');
   await page.locator('#scored-character').selectOption('5');
   assert.equal(await count.inputValue(), '3');
   await page.locator('#admin-episode').selectOption('1');
   await button('My picks').click();
   await page.locator('#kind').selectOption('weekly');
-  assert.equal(await page.locator('#episode').inputValue(), '2');
-  assert.match(await page.locator('#view h3').innerText(), /^Episode 2/);
+  assert.equal(await page.locator('#episode').inputValue(), '1');
+  assert.match(await page.locator('#view h3').innerText(), /^Episode 1/);
 }
