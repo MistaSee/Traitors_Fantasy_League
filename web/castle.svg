@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" fill="none">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="440" gradientUnits="userSpaceOnUse"><stop stop-color="#263b31"/><stop offset="1" stop-color="#101a15"/></linearGradient>
+    <radialGradient id="moon"><stop stop-color="#c4bc90" stop-opacity=".3"/><stop offset=".4" stop-color="#a8b395" stop-opacity=".09"/><stop offset="1" stop-color="#a8b395" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mist" x2="0" y2="1"><stop stop-color="#859282" stop-opacity="0"/><stop offset=".5" stop-color="#859282" stop-opacity=".14"/><stop offset="1" stop-color="#859282" stop-opacity="0"/></linearGradient>
+    <g id="fir" fill="#09130e"><path d="M0 0-12 34h7l-15 30h11l-18 36h24v27h6v-27h24L9 64h11L5 34h7Z"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h760v440H0z"/>
+  <circle cx="538" cy="94" r="154" fill="url(#moon)"/>
+  <circle cx="538" cy="94" r="27" fill="#bbbd9a" opacity=".24"/>
+  <path d="m0 273 90-45 59 19 106-58 75 25 95-60 67 56 68-18 100 62 100-32v218H0Z" fill="#182a20"/>
+  <path d="m0 324 116-53 98 13 91-26 97 17 115-23 129 40 114-20v168H0Z" fill="#101e17"/>
+  <g fill="#0a1510" stroke="#43513d" stroke-opacity=".35">
+    <path d="M341 340V215h30v-39l15-30 16 30v39h32v-53l18-43 18 43v53h56v-39l17-35 17 35v39h32v125Z"/>
+    <path d="M375 216v-8h9v8h9v-8h9v8h9v-8h9v8h11v20h-56Zm99 0v-8h9v8h9v-8h9v8h9v-8h9v8h11v20h-56Z"/>
+    <path d="M427 340V235h54v105M433 235l21-30 21 30M332 219l12-19 12 19M577 219l12-19 12 19"/>
+    <path d="M444 340v-35q10-25 20 0v35" fill="#060c08"/>
+  </g>
+  <g fill="#b9944b" opacity=".52"><path d="M382 182h7v15h-7zM448 168h7v18h-7zM540 182h7v15h-7zM395 255h6v13h-6zM501 256h6v13h-6zM449 253h7v16h-7z"/></g>
+  <path d="M415 440 445 340h19l58 100" fill="#6a7353" opacity=".08"/>
+  <g opacity=".75"><use href="#fir" x="290" y="231"/><use href="#fir" x="623" y="209"/><use href="#fir" x="664" y="228"/><use href="#fir" x="207" y="244"/></g>
+  <path d="M0 330c171-59 304 27 466-9s172-11 294-29v86H0Z" fill="url(#mist)"/>
+  <path d="M0 375c251-67 429 30 760-40v90H0Z" fill="url(#mist)"/>
+  <use href="#fir" transform="translate(710 176) scale(2.2)"/><use href="#fir" transform="translate(112 250) scale(1.8)"/>
+  <path d="M0 408c113-48 174-4 282-12s314-29 478 5v39H0Z" fill="#0a130d"/>
+  <path d="m600 105 8-3 6 5 7-2 6 6m-134 32 6-3 5 3 5-2 6 3" stroke="#08110c" stroke-width="2"/>
+</svg>
