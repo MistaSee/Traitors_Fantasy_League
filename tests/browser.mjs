@@ -14,7 +14,7 @@ await page.reload();await page.getByRole('button',{name:'My picks',exact:true}).
 assert.equal(await page.locator('[aria-pressed=true]').count(),3);
 await page.getByRole('button',{name:'Organiser',exact:true}).click();
 await page.locator('#new-name').fill('New player');await page.locator('#new-email').fill('new@example.com');await page.getByRole('button',{name:'Add player',exact:true}).click();
-await page.getByText('Mark · Matty · Mac · Kat · Abi · Tom · Jon · Bobby · Kirsty · New player',{exact:true}).waitFor();
+await page.getByRole('row',{name:'New player new@example.com Player Make New player an organiser',exact:true}).waitFor();
 await page.locator('summary').filter({hasText:'Record starting roles'}).click();
 for(const el of await page.locator('[data-start]').all())await el.selectOption('Faithful');
 await page.locator('[data-start="4"]').selectOption('Traitor');await page.locator('[data-start="5"]').selectOption('Traitor');
