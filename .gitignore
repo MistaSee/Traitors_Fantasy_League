@@ -3,3 +3,6 @@ node_modules/
 test-results/
 *.local.*
 *.zip
+
+# macOS external-drive metadata
+._*
