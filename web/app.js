@@ -1,5 +1,6 @@
 import {validateDraft, score, characterPoints, episodeOneTeamSize, episodeScoringRules} from './engine.mjs';
 import {EditTracker, readForm, restoreForm, confirmDiscard} from './edits.mjs';
+import {castPhotos} from './cast-photos.mjs';
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seed = await fetch('./seed.json').then(r=>r.json());
@@ -113,7 +114,19 @@ function draft(){
  await refresh('picks');notice('Your picks are saved.');});});
 }
 function cast(){
- $('#view').innerHTML=`<h2>The castle’s residents</h2><p class="muted">21 celebrities imported from your workbook. Roles are recorded by the organiser after the reveal.</p><div class="cast">${data.state.characters.map(c=>`<article class="person"><span class="initial">${esc(initials(c.name))}</span><div><b>${esc(c.name)}</b><small>${esc(c.description)}</small><small>Starting role: ${esc(c.startingRole)}</small></div></article>`).join('')}</div>`;
+ const characters=data.state.characters;
+ $('#view').innerHTML=`<h2>The castle’s residents</h2><p class="muted">${characters.length} familiar faces. Who will earn your trust? Roles are recorded by the organiser after the reveal.</p><div class="cast cast-directory">${characters.map(c=>{
+ const photo=castPhotos[c.id];
+ return `<article class="person cast-card"><span class="cast-portrait"><span aria-hidden="true">${esc(initials(c.name))}</span>${photo?`<img src="${esc(photo.src)}" alt="Portrait of ${esc(c.name)}" width="96" height="128" loading="lazy" decoding="async" referrerpolicy="no-referrer" style="object-position:${esc(photo.position)};--portrait-scale:${esc(photo.scale||1)};--portrait-origin:${esc(photo.origin||'50% 35%')}">`:''}</span><div class="cast-info"><b>${esc(c.name)}</b><small>${esc(c.description)}</small><small class="cast-role">Starting role: ${esc(c.startingRole)}</small></div></article>`;
+ }).join('')}</div><details class="photo-credits"><summary>Photo credits &amp; sources</summary><p>Portraits are displayed in a fitted frame. Source photographs retain their respective copyrights and licences; no endorsement is implied.</p><ul>${characters.filter(c=>castPhotos[c.id]).map(c=>{
+ const photo=castPhotos[c.id];
+ return `<li><b>${esc(c.name)}</b> — <a href="${esc(photo.source)}" target="_blank" rel="noopener noreferrer">${esc(photo.title)}</a> · ${esc(photo.creator)} · ${photo.licenseUrl?`<a href="${esc(photo.licenseUrl)}" target="_blank" rel="noopener noreferrer">${esc(photo.license)}</a>`:esc(photo.license)}</li>`;
+ }).join('')}</ul></details>`;
+ document.querySelectorAll('.cast-portrait img').forEach(img=>{
+ const fallback=()=>{img.hidden=true;};
+ img.addEventListener('error',fallback,{once:true});
+ if(img.complete&&!img.naturalWidth)fallback();
+ });
 }
 function rules(){
  $('#view').innerHTML=`<h2>Every move has a price.</h2><p class="muted">The workbook’s scoring system, with organiser notes. Counts are awarded explicitly; events are not automatically inferred.</p><div class="help">Captain doubles positive and negative points. Episode 1 teams score only events labelled Any role. Preseason predictions use starting roles. Episode eligibility is frozen when drafts lock.</div>${[...new Set(data.state.rules.map(r=>r.category))].map(category=>`<section class="panel"><h3>${esc(category)}</h3>${data.state.rules.filter(r=>r.category===category).map(r=>`<div class="event"><div>${esc(r.label)}<small>${esc(r.notes)}</small></div><span class="tag">${esc(r.role)}</span><b>${r.points>0?'+':''}${r.points} pts</b></div>`).join('')}</section>`).join('')}`;

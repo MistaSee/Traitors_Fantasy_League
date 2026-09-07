@@ -62,3 +62,13 @@ Hosted sign-in and email delivery require separate checks in the deployed site. 
 - Email HTML in `emails/` must be copied into Supabase's hosted templates to take effect.
 - `scripts/update_news.py` defines the feed query, publisher filters and deduplication. `web/news.mjs` handles the ticker, refresh checks, pause behaviour and reduced-motion display.
 - League backups include player emails and submitted picks. Keep exported JSON, SMTP passwords and Supabase secret keys out of the repository.
+
+## Cast photographs
+
+`web/cast-photos.mjs` maps the workbook's stable celebrity IDs to portraits and source credits. It works with both existing Supabase leagues and the demo; no database migration is needed. Add or replace a portrait in that manifest rather than adding image fields to the league state. Keep the ID matched to the correct person.
+
+Nineteen Creative Commons portraits are bundled in `web/images/cast/`. The manifest records the source, creator and individual licence, and the cast tab displays those credits in an expandable section. Amol Rajan's photograph is CC BY-NC-SA 2.0; the others have the licences listed alongside them. Images retain their original licences, independently of the application code. The downloaded files are unchanged; CSS fits them into portrait frames.
+
+King Kenny and Sharon Rooney use external images from their official agency profiles. Those images are not bundled or claimed to be Creative Commons: copyright remains with their owners. Keep the agency source links with them, and check reuse permissions before redistributing those photographs separately. External images can be changed or removed by their hosts; a failed image falls back to initials without losing the name or other card details. A celebrity with no manifest entry also uses initials.
+
+For a visual check, open **The cast** in a disposable demo at desktop and phone widths. Check all 21 faces, their names, photo credits and the initials fallback (temporarily give one portrait an invalid URL in the disposable copy). Portraits load lazily as their cards approach the screen.
