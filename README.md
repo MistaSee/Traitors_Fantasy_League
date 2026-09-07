@@ -35,6 +35,27 @@ Sources: [GitHub schedule behaviour](https://docs.github.com/en/actions/referenc
 
 ## Free hosting with a private repository
 
+### Cloudflare Workers setup screen
+
+If Cloudflare opens **Set up your application → Worker project**, you can stay on that screen. The included `wrangler.json` deploys `web/` as static assets, without a Worker script or paid backend. Use the Free plan and these settings:
+
+| Setting | Value |
+|---|---|
+| Worker name | `traitors-fantasy-league` |
+| Production branch | `main` |
+| Build command | Leave blank |
+| Deploy command | `npx wrangler deploy` |
+| Root directory | Repository root (leave default; do not set to `web`) |
+| Non-production branch builds | Optional; off is sufficient for this league |
+| API token | Keep Cloudflare's automatically generated deployment token option |
+| Build variables and secrets | None required |
+
+Click **Deploy**. The generated `workers.dev` URL serves the same app as Pages would. Use that exact address in Supabase's Site URL and redirect allowlist. The Supabase and email setup below is unchanged. Cloudflare Access is an optional additional login layer; the app is designed to use Supabase email sign-in for league membership.
+
+The news workflow's commits also trigger the connected Workers build. Static asset requests and storage are free; builds use the account's included build allowance. Sources: [Workers build configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/), [static asset pricing](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/).
+
+### Cloudflare Pages alternative
+
 Use Cloudflare Pages Free for the static interface and a Supabase Free project for authentication and database. Cloudflare connects to the private GitHub repository and deploys `web/`; the source remains private. The website is reachable by URL, but live league information requires a rostered email sign-in. A private source repository does not make the website private by itself.
 
 Cloudflare build settings: framework None; production branch `main`; build command `exit 0`; output directory `web`. Use its included `pages.dev` address; no domain purchase is necessary. GitHub Pages from a private repository is not included in GitHub Free, so no automatic GitHub Pages deployment is configured.
