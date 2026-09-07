@@ -7,10 +7,25 @@ create function auth.jwt() returns jsonb language sql as $$ select current_setti
 create function auth.uid() returns uuid language sql as $$ select (auth.jwt()->>'sub')::uuid $$;`);
 await db.exec(readFileSync(new URL('../schema.sql',import.meta.url),'utf8'));
 const s=JSON.parse(readFileSync(new URL('../web/seed.json',import.meta.url)));
-s.characters.forEach((c,i)=>s.episodes[1].roster[c.id]={role:i<2?'Traitor':'Faithful',status:'Active'});
 await db.query('insert into public.league_config values(1,$1,0)',[s]);
 await db.exec(`insert into public.league_players(email,name,is_admin) values('admin@example.com','Admin',true),('player@example.com','Player',false);`);
 async function as(email){await db.query("select set_config('test.jwt',$1,false)",[JSON.stringify({email,sub:'11111111-1111-4111-8111-111111111111'})]);await db.exec('set role authenticated');}
+await as('player@example.com');
+// An ordinary player can predict original Traitors before any roles or rosters exist.
+assert.ok(s.characters.every(c=>c.startingRole==='Unknown'));
+assert.ok(s.episodes.every(ep=>Object.values(ep.roster).every(c=>c.role==='Unknown')));
+await db.query("select public.save_entry('preseason',1,$1)",[{picks:['4','5','6']}]);
+await assert.rejects(()=>db.query("select public.save_entry('preseason',1,$1)",[{picks:['4','5']}]),/locked or invalid/);
+await assert.rejects(()=>db.query("select public.save_entry('preseason',1,$1)",[{picks:['4','4','6']}]),/Duplicate/);
+await db.query("select public.save_entry('preseason',1,$1)",[{picks:['4','5','7']}]);
+const preseasonRead=(await db.query('select public.read_league() as data')).rows[0].data;
+assert.equal(preseasonRead.me.is_admin,false);
+assert.equal(preseasonRead.entries.length,1,'Updating preseason replaces the earlier submission');
+assert.deepEqual(preseasonRead.entries[0].payload.picks,['4','5','7']);
+// Set up a weekly roster only after the preseason check.
+await db.exec('reset role');
+s.characters.forEach((c,i)=>s.episodes[1].roster[c.id]={role:i<2?'Traitor':'Faithful',status:'Active'});
+await db.query('update public.league_config set state=$1 where id=1',[s]);
 await as('player@example.com');
 const draft={picks:['4','5','6','7','8','9','10','11'],captain:'4'};
 await db.query("select public.save_entry('weekly',2,$1)",[draft]);
@@ -60,7 +75,7 @@ await db.exec('reset role');await as('player@example.com');
 read=(await db.query('select public.read_league() as data')).rows[0].data;
 assert.equal(read.me.is_admin,true,'Promoted player gets organiser access');
 assert.equal(read.players.find(p=>p.id===playerId).is_admin,true);
-assert.deepEqual(read.entries.find(e=>e.player_id===playerId).payload,draft,'Promotion preserves submitted picks');
+assert.deepEqual(read.entries.find(e=>e.player_id===playerId&&e.kind==='weekly').payload,draft,'Promotion preserves submitted picks');
 await db.query("select public.add_player('added-by-organiser@example.com','Additional player')");
 await db.query('select public.export_league()');
 await db.query('select public.save_league($1,1)',[s]);
@@ -77,10 +92,18 @@ await db.query('select public.set_player_organiser($1,true)',[adminId]);
 await db.query('select public.set_player_organiser($1,false)',[playerId]);
 read=(await db.query('select public.read_league() as data')).rows[0].data;
 assert.equal(read.me.is_admin,false,'An organiser can step down when another remains');
-assert.deepEqual(read.entries.find(e=>e.player_id===playerId).payload,draft,'Demotion preserves submitted picks');
+assert.deepEqual(read.entries.find(e=>e.player_id===playerId&&e.kind==='weekly').payload,draft,'Demotion preserves submitted picks');
+// The discovery fix must not bypass the organiser's preseason lock.
+await db.exec('reset role');await as('admin@example.com');
+const beforeLock=(await db.query('select public.read_league() as data')).rows[0].data;
+beforeLock.state.preseasonLocked=true;
+await db.query('select public.save_league($1,$2)',[beforeLock.state,beforeLock.revision]);
+await db.exec('reset role');await as('player@example.com');
+await assert.rejects(()=>db.query("select public.save_entry('preseason',1,$1)",[{picks:['4','5','6']}]),/locked or invalid/);
+assert.deepEqual((await db.query('select public.read_league() as data')).rows[0].data.entries.find(e=>e.kind==='preseason').payload.picks,['4','5','7']);
 await db.exec('reset role');await as('outsider@example.com');
 await assert.rejects(()=>db.query('select public.set_player_organiser($1,true)',[playerId]),/Organiser/);
 await db.exec('reset role; set role anon');
 await assert.rejects(()=>db.query('select public.set_player_organiser($1,true)',[playerId]),/permission denied/);
-console.log('Database passed: membership, draft privacy, scoring locks, revisions, organiser permissions, last-organiser protection and repeatable migration preserving league data.');
+console.log('Database passed: ordinary-player preseason submissions before role reveals, preseason lock enforcement, membership, draft privacy, scoring locks, revisions, organiser permissions, last-organiser protection and repeatable migration preserving league data.');
 await db.close();

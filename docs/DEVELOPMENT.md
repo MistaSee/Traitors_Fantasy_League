@@ -41,7 +41,7 @@ npx playwright install chromium
 node tests/database.mjs
 ```
 
-The database suite runs the real SQL in an isolated PGlite database. It covers access permissions, private drafts, validation, locked rounds, revision conflicts, adding players, organiser promotion/demotion, last-organiser protection and preservation of data when upgrading the old RPCs. It does not connect to your hosted Supabase project.
+The database suite runs the real SQL in an isolated PGlite database. It covers ordinary-player preseason submissions before any roles are revealed, preseason lock enforcement, access permissions, private drafts, validation, locked rounds, revision conflicts, adding players, organiser promotion/demotion, last-organiser protection and preservation of data when upgrading the old RPCs. It does not connect to your hosted Supabase project.
 
 For the browser suite, start the server on port 8765 **from a disposable demo copy with blank connection values**, then run this in another terminal in that copy:
 

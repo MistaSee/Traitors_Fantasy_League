@@ -148,7 +148,7 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 ### Predictions and drafts
 
-- [ ] **DRAFT-01 — Preseason validation:** two or four selections cannot be submitted; exactly three distinct celebrities can. Unlocked predictions can be updated and survive refresh.
+- [ ] **DRAFT-01 — Preseason discovery and validation:** as a normal player before any roles are entered, My picks must default to preseason with all 21 celebrities. Make preseason picks on Standings and the empty weekly view must open the same form. Two or four selections cannot be submitted; exactly three distinct celebrities can. Unlocked predictions can be updated and survive refresh.
 - [ ] **DRAFT-02 — Preseason lock:** follow the miniature episode and get A=20/B=10 after the reveal. Changes are refused after locking, including from a player tab that was opened before the lock.
 - [ ] **DRAFT-03 — Weekly role quotas:** a valid 2+6 team saves. Too few/many picks and a wrong role mix are rejected, even when the overall team size is eight.
 - [ ] **DRAFT-04 — Captain:** a captain is required and must be selected in the team. Removing the captain from the team clears that choice and requires a replacement.

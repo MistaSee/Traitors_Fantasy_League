@@ -260,7 +260,7 @@ The news feed updates headlines only. **Organisers enter starting roles, recruit
 ### Before the season
 
 1. Agree scoring values under **Organiser → Scoring values**.
-2. Add players and collect their three preseason Traitor predictions.
+2. Add players and collect their three preseason Traitor predictions. Players choose **Make preseason picks** on Standings, or open **My picks**, which defaults to preseason while predictions are open. They select exactly three celebrities and click **Save picks**; no roles, roster setup or captain are required.
 3. Lock preseason predictions before the first broadcast. This also freezes scoring values for the season.
 4. After the reveal, record the original roles under **Season controls → Record starting roles after episode 1** and save.
 
