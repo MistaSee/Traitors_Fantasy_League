@@ -1,5 +1,6 @@
 const {chromium} = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 import assert from 'node:assert/strict';
+import {checkEdits} from './browser-edits.mjs';
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH,headless:true});
 const page=await browser.newPage({viewport:{width:1440,height:1000}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -25,8 +26,9 @@ await page.locator('#admin-episode').selectOption('2');await page.locator('summa
 await page.getByRole('button',{name:'My picks',exact:true}).click();await page.locator('#kind').selectOption('weekly');
 for(const id of ['4','5','6','7','8','9','10','11'])await page.locator(`[data-pick="${id}"]`).click();await page.locator('#captain').selectOption('4');await page.getByRole('button',{name:'Save picks',exact:true}).click();
 await page.getByRole('button',{name:'Update picks',exact:true}).waitFor();
+await checkEdits(page);
 await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Standings',exact:true}).click();
 assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
 await page.screenshot({path:'/tmp/round-table-mobile.png',fullPage:true});
-assert.deepEqual(errors,[]);console.log('Browser passed: preseason persistence, add player, roster setup, weekly draft, mobile layout, no JS errors.');
+assert.deepEqual(errors,[]);console.log('Browser passed: preseason persistence, add player, roster setup, weekly draft, unsaved-edit protection, section save boundaries, scoring selection, failed-save recovery, episode context, mobile layout, no JS errors.');
 await browser.close();

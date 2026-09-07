@@ -39,12 +39,15 @@ To correct three confessionals to four, change the count to `4` and save. You ar
 
 Read [the scoring review](../SCORING-REVIEW.md) and agree any changes before collecting real predictions.
 
-## Known issues to prioritise
+## Fixed issues to regression-test
 
-These were identified from the current code; creating this checklist has not fixed them.
+The previously identified failures have been addressed:
 
-- **Unsaved-edit loss:** changing celebrity, episode or tab can discard unsaved selections or counts without a warning. The navigation warning is not currently wired to mark forms as changed. Fix this before launch, particularly for episode scoring.
-- **Celebrity selection resets after saving:** saving event counts redraws the organiser page and selects the first celebrity again. Always check the name before entering the next counts. Keeping the selected celebrity would make scoring less error-prone.
+- **Unsaved edits:** changing tab, pick type, episode or scored celebrity now prompts before discarding affected edits. **Keep editing** (or Escape) preserves the original selection and values. Saving one organiser section retains unsaved edits in the other sections; those sections still need their own save. Sign-out and the home link are guarded, and browser reload/close requests a native warning while edits or a save are pending. Browser warnings cannot protect against a device crash or forced browser termination.
+- **Scoring selection:** saving event counts keeps the same celebrity and episode selected. Switching celebrity discards only that celebrity's unsaved counts after confirmation; it preserves edits elsewhere on the organiser page.
+- **Episode context:** opening weekly picks after viewing organiser episode 1 correctly selects and displays episode 2. Weekly drafting starts at episode 2.
+
+A save temporarily prevents further editing and navigation. If it fails, the form remains available with its edits. When several organiser sections have changes, save scoring values before locking preseason; the app will remind you because that lock freezes the values.
 
 Missing automatic locks, score-publication controls, event-rule enforcement and password/account-management screens are current feature limits rather than evidence that those features have passed testing.
 
@@ -156,7 +159,7 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 ### Episode setup and locks
 
-- [ ] **ROUND-01 — Save boundaries:** copying a roster changes the form; Save episode setup persists it. Changing the next episode does not change the previous one.
+- [ ] **ROUND-01 — Save boundaries:** copying a roster changes the form; Save episode setup persists it. Changing the next episode does not change the previous one. After viewing organiser episode 1, open weekly picks: the selector and heading must both show episode 2.
 - [ ] **ROUND-02 — Lock enforcement:** after locking, picks, roster and slot counts cannot change. Event counts remain editable for corrections.
 - [ ] **ROUND-03 — Existing submissions:** before a lock, attempting to change roles/statuses/quotas in a way that invalidates a submitted team is rejected rather than silently changing its validity.
 - [ ] **ROUND-04 — Freeze rules:** point values can be changed before preseason locks and remain saved. After that lock, value changes are refused. Perform this in a separate fresh rehearsal if it would affect the arithmetic fixture.
@@ -174,12 +177,14 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 ### Unsaved edits, interruptions and two organisers
 
-- [ ] **SAVE-01 — Unsaved draft:** change a pick or captain and navigate away without saving. The desired behaviour is a clear warning or preserved edits. **Known failure to address in the current app.**
-- [ ] **SAVE-02 — Unsaved scoring:** type a count, then change celebrity, episode or tab without saving. The desired behaviour is a warning or preserved edits. **Known failure to address in the current app.**
-- [ ] **SAVE-03 — Repeated scoring:** save several celebrities in succession, always checking the selected name. Record whether the reset to the first celebrity causes mistakes or makes the process impractical.
+- [ ] **SAVE-01 — Unsaved draft:** change a pick or captain and navigate away without saving. A warning must appear; Keep editing must preserve the team, captain and previous selector. Test preseason and final predictions as well as weekly picks. Saving or undoing the change clears the warning.
+- [ ] **SAVE-02 — Unsaved scoring:** type a count, then change celebrity, episode or tab without saving. A warning must appear. Keep editing must retain both the original celebrity/episode and the typed count. Discard changes must load the newly selected saved values.
+- [ ] **SAVE-03 — Repeated scoring:** save several celebrities in succession. Each save must retain that celebrity, episode and count. Switching episodes must load only that episode’s counts; reloading must retain saved values.
 - [ ] **SAVE-04 — Concurrent organisers:** open the same league state in A and B as organisers. Save a scoring/setup change in A, then try to save B's older copy. B should receive a refresh/conflict message, and A's changes must survive. Refresh B and reapply intentionally.
 - [ ] **SAVE-05 — Interrupted save:** on the hosted test league, disconnect the device's network before saving. The UI must not claim success. Reconnect, refresh and verify what actually persisted before retrying. A local demo saves on the device, so it cannot validate this check.
 - [ ] **SAVE-06 — Rapid clicks:** double-click Save/Add on the test league. No duplicate player, duplicated award or duplicated submission is created. Record any confusing error or stale-state message.
+- [ ] **SAVE-07 — Multiple edited sections:** change a count and the final winner without saving either. Save counts: the winner must remain in the form but still be unsaved. Navigating away must warn about Season controls only. Save season controls; both changes must survive reload. Repeat with a partially completed Add player form and scoring values.
+- [ ] **SAVE-08 — Leaving the browser:** with unsaved edits, try the home link, sign-out, reload and closing the tab. Cancel each and verify the edits remain. Test Escape in the in-app warning. Save or undo all changes and confirm normal navigation no longer warns.
 
 ### Privacy, mobile use and supporting features
 
@@ -193,7 +198,9 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 The [development guide](DEVELOPMENT.md#automated-checks) explains how to run the existing engine, news, database and browser checks. They cover core calculations, draft validation, membership, private drafts, organiser privileges, lock handling and migration behaviour. Hosted email delivery, browser/device behaviour and the manual scoring workflow still need the checks above.
 
-Before inviting the league, resolve failures involving access, lost submissions, incorrect totals, draft locks or overwritten scores. Address the known unsaved-edit issue and repeat the affected tests after changes. Agree the subjective scoring rules and complete one whole rehearsal without having to repair live data manually.
+On 7 September 2026, the ten engine/edit-state tests, six news tests and isolated SQL suite passed locally. Browser checks in a disposable demo verified discard/cancel behaviour, preseason/final/weekly edits, captain changes, copied rosters, saving one section while retaining another, rejected-player recovery, celebrity/episode scoring separation and persistence after reload. These checks did not change the hosted league or verify live SMTP/network failure scenarios; the checklist remains a rehearsal to complete with real test accounts.
+
+Before inviting the league, resolve failures involving access, lost submissions, incorrect totals, draft locks or overwritten scores. Repeat the affected regression tests after changes. Agree the subjective scoring rules and complete one whole rehearsal without having to repair live data manually.
 
 For each problem, record:
 

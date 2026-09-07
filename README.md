@@ -6,7 +6,7 @@ This guide takes you from the files in GitHub to a working league using **Supaba
 
 **Already have a running league?** Go to [Updating an existing installation](#updating-an-existing-installation). The database setup below is for a new, empty Supabase project.
 
-Before inviting players, use the [scoring walkthrough and playtest checklist](docs/PLAYTEST.md), including a miniature episode with exact expected scores and known issues to address.
+Before inviting players, use the [scoring walkthrough and playtest checklist](docs/PLAYTEST.md), including a miniature episode with exact expected scores and regression checks for the corrected issues.
 
 ## What you need
 

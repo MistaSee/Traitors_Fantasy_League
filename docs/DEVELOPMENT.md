@@ -31,7 +31,7 @@ npm test
 python3 -m unittest discover -s tests -p 'test_news.py'
 ```
 
-These are the checks run by [.github/workflows/test.yml](../.github/workflows/test.yml). The five engine cases cover workbook seed integrity, draft validation, preseason roles, captain doubling, historical eligibility and final predictions. News tests cover parsing, source/date filtering and deduplication.
+These are the checks run by [.github/workflows/test.yml](../.github/workflows/test.yml). The five engine cases cover workbook seed integrity, draft validation, preseason roles, captain doubling, historical eligibility and final predictions. Five additional edit-state cases cover unsaved changes, reverted changes, navigation scope and preservation of other sections after saving. News tests cover parsing, source/date filtering and deduplication.
 
 For the optional database and browser checks, install their local dependencies:
 
@@ -49,7 +49,7 @@ For the browser suite, start the server on port 8765 **from a disposable demo co
 node tests/browser.mjs
 ```
 
-The browser suite changes its demo data, submits picks, adds a player and tests roster setup and mobile layout. It expects demo mode and is not a test to run against production. It writes screenshots to `/tmp/round-table-desktop.png` and `/tmp/round-table-mobile.png`.
+The browser suite changes its demo data, submits picks, adds a player and tests roster setup, mobile layout and the regression cases in `tests/browser-edits.mjs`: discard/cancel warnings, captain and final edits, section save boundaries, celebrity/episode selection, rejected saves and reload persistence. It expects demo mode and is not a test to run against production. It writes screenshots to `/tmp/round-table-desktop.png` and `/tmp/round-table-mobile.png`.
 
 The test scripts also accept `PGLITE_MODULE` and `PLAYWRIGHT_MODULE` overrides for dependency import locations, and `CHROME_PATH` for an installed Chromium/Chrome executable.
 
