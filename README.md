@@ -15,11 +15,23 @@ Read `SCORING-REVIEW.md` for proposed rules changes. Existing scoring values rem
 With Python 3 and Node 22+ installed:
 
 ```sh
-python3 -m http.server 8765 --directory web
+python3 scripts/serve.py --port 8765
 node --test tests/engine.test.mjs
 ```
 
 Open http://localhost:8765. Demo data belongs to that browser only; Reset demo clears it. Real play uses the database and verified email identity.
+
+## Automatic season news
+
+The Castle Dispatch ticker reads a news snapshot from `web/news.json`. GitHub Actions runs `scripts/update_news.py` every six hours (00:17, 06:17, 12:17 and 18:17 UTC) and commits the updated snapshot to `main`. The connected Cloudflare Pages project redeploys on those commits. An open browser checks the snapshot every five minutes and whenever you return to its tab. The local preview server refreshes news in the background too, so the demo does not depend on pulling bot commits.
+
+No paid news API, API key or extra service is needed. The job uses standard Linux runners and at most three minutes per run (a maximum of 372 minutes in a 31-day month), within GitHub Free's 2,000 included monthly minutes if the account's other workflows leave that allowance available. Do not enable paid Actions overages. GitHub schedules can run late; the ticker shows the successful check date and flags snapshots over 48 hours old. A failed or empty feed preserves the previous headlines and fails the workflow visibly. The initial file is an actual fetched snapshot, not sample stories.
+
+Headlines come from Google News RSS, restricted to recent UK Celebrity Traitors series 2 coverage and selected publishers. They are ordered by publication time with a per-publisher limit and simple duplicate/topic filtering; this is a recent-news feed, not a popularity ranking. Links open the publisher story via Google News. Feed availability and its third-party format are not guaranteed. Edit the query or publisher allowlist in `scripts/update_news.py` for future seasons. You can trigger **Refresh season news → Run workflow** for an immediate check.
+
+The ticker pauses on hover and keyboard focus, has an explicit pause button, and respects reduced-motion preferences. **Top season stories** opens a stationary list with all sources and dates.
+
+Sources: [GitHub schedule behaviour](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule), [GitHub Actions included usage](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
 
 ## Free hosting with a private repository
 

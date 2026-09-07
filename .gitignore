@@ -6,3 +6,6 @@ test-results/
 
 # macOS external-drive metadata
 ._*
+__pycache__/
+*.pyc
+web/news.json.tmp
