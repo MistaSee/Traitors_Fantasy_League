@@ -82,6 +82,10 @@ values(lower('YOUR_EMAIL_HERE'),'Mark',true);
 
 Sources: [Supabase email sign-in](https://supabase.com/docs/guides/auth/auth-email-passwordless), [Supabase SMTP](https://supabase.com/docs/guides/auth/auth-smtp), [Gmail SMTP](https://support.google.com/mail/answer/7104828), [Google app passwords](https://support.google.com/accounts/answer/185833), [Gmail limits](https://support.google.com/mail/answer/22839), [Brevo free limits](https://help.brevo.com/hc/en-us/articles/208580669-FAQs-What-are-the-limits-of-the-Free-plan).
 
+## Sign-in email copy
+
+`emails/sign-in.html` contains the dark castle-themed email, with the subject **Your Round Table summons: sign in**. Follow `emails/README.md` to apply it to Supabase's **Magic Link** and **Confirm signup** templates. These hosted settings must be saved in Supabase; a GitHub push alone does not change the emails.
+
 ## Organiser workflow
 
 Before episode 1, agree scoring values, add players and collect three preseason picks. Lock preseason before broadcast; this also freezes point values for the season. Record the original roles after the reveal.
