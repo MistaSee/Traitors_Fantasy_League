@@ -88,6 +88,10 @@ Sources: [Supabase email sign-in](https://supabase.com/docs/guides/auth/auth-ema
 
 ## Organiser workflow
 
+Multiple players can be organisers. Under **Organiser → Players & organisers**, choose **Make organiser** beside an existing player. For someone new, add their name and email first, then promote them. They use the same email sign-in as everyone else; after refreshing, they can open **Organiser**. All organisers have equal access to players, roles, setup, scoring, locks and backups. Changing a role preserves that player's picks and scores. **Make player** removes organiser access; the server prevents removing the last organiser, including simultaneous role changes.
+
+For an existing deployment, run `migrations/20260907_organisers.sql` in Supabase's SQL editor, then refresh the app. This repeatable update preserves all league data. New installations include it in `schema.sql`. Adding or promoting players sends no email.
+
 Before episode 1, agree scoring values, add players and collect three preseason picks. Lock preseason before broadcast; this also freezes point values for the season. Record the original roles after the reveal.
 
 For episode 1, copy starting roles into its roster. Before each later episode, copy the previous roster, update recruitment and eliminations, and set draft slot counts. Save setup before players draft. Roles and statuses describe eligibility **before** that episode. Do not mark a celebrity eliminated in an episode’s pre-draft roster because they leave during that episode; update the next episode instead. The server rejects changes that invalidate submitted teams.
@@ -98,6 +102,6 @@ No automatic broadcast deadlines, reminders, fallback teams, scoring preset chan
 
 ## Verification
 
-Five engine tests cover workbook imports, draft validation, original-role predictions, captain penalties, historical isolation and final scoring. `tests/database.mjs` exercises the real SQL in PGlite/PostgreSQL, including permissions, roster membership, draft privacy, invalidation prevention, locks and stale-write conflicts. `tests/browser.mjs` covers preseason persistence, adding a player, episode roster setup, drafting and mobile width.
+Five engine tests cover workbook imports, draft validation, original-role predictions, captain penalties, historical isolation and final scoring. `tests/database.mjs` exercises the real SQL in PGlite/PostgreSQL, including permissions, roster membership, draft privacy, invalidation prevention, locks, stale-write conflicts, organiser promotion and demotion, last-organiser protection, and a repeatable upgrade from the previous RPCs without changing league data. `tests/browser.mjs` covers preseason persistence, adding a player, episode roster setup, drafting and mobile width.
 
 For optional tests install `playwright` and `@electric-sql/pglite@0.3.14` in your development environment, then run the corresponding scripts. Browser tests expect a local server on port 8765 and Chromium installed through Playwright (or set `CHROME_PATH`). Hosted authentication and real email delivery require the connected accounts and remain a deployment acceptance check.
