@@ -58,3 +58,9 @@ input,select{font:inherit;max-width:100%;border:1px solid #56604d;background:#0b
 .photo-credits li{margin-bottom:12px}
 @media(max-width:760px){.cast-directory{gap:12px}.cast-card{flex-direction:column;align-items:stretch;gap:12px;padding:12px}.cast-portrait{width:100%;height:auto;aspect-ratio:1}.cast-info>b{font-size:14px}.cast-info{flex:1}.person .cast-role{margin-top:9px}.photo-credits{font-size:11px}}
 .account-email{overflow-wrap:anywhere}#join-error:not(:empty){padding:12px;border-left:2px solid var(--gold);background:#30251e;color:#eed5b3;line-height:1.6}
+
+/* Team naming stays separate from the picks form and never blocks a draft. */
+.team-profile h2{overflow-wrap:anywhere;margin-top:12px}.team-profile .row{align-items:flex-end}.team-profile label{flex:1;min-width:0;margin-bottom:0}.team-profile input{width:100%}.team-profile button{flex-shrink:0}
+.team-cell{min-width:160px;max-width:320px;overflow-wrap:anywhere}.team-cell small{display:block;margin:6px 0;line-height:1.5}
+#team-name-error:empty{display:none}#team-name-error:not(:empty){padding:12px;border-left:2px solid var(--gold);background:#30251e;color:#eed5b3;line-height:1.6}
+@media(max-width:760px){.team-profile .row{align-items:stretch;flex-direction:column}.team-cell{min-width:135px}}

@@ -24,7 +24,7 @@ If Gmail app passwords are unavailable, there is an [alternative email setup](#a
 | Supabase | Stores players, picks and scores, and handles email sign-in. |
 | Gmail or another SMTP provider | Delivers the sign-in emails requested through Supabase. |
 
-The sign-in page is publicly reachable. Anyone who verifies their email can choose a league name and join as an ordinary player. Existing players go straight to the league. Organiser access is granted separately; registration never makes someone an organiser. Players do not need GitHub, Cloudflare or Supabase dashboard accounts.
+The sign-in page is publicly reachable. Anyone who verifies their email can enter their name and join as an ordinary player. Existing players go straight to the league. Organiser access is granted separately; registration never makes someone an organiser. Players do not need GitHub, Cloudflare or Supabase dashboard accounts.
 
 ## 1. Check the files in GitHub
 
@@ -162,7 +162,7 @@ Cloudflare will deploy future commits to `main` automatically. [Cloudflare repos
 
 The two URLs should match the site you actually open. These settings let the email link return players to the league after verifying their address. [Supabase redirect guide](https://supabase.com/docs/guides/auth/redirect-urls)
 
-New players create their authentication account on their first sign-in. After verifying their email, they choose a league name and click **Join the league**. This creates their player entry with ordinary player permissions. Anyone with the site address can join; player email addresses and organiser controls remain restricted to organisers, and open drafts stay private.
+New players create their authentication account on their first sign-in. After verifying their email, they enter their name and click **Join the league**. This creates their player entry with ordinary player permissions. Anyone with the site address can join; player email addresses and organiser controls remain restricted to organisers, and open drafts stay private.
 
 ## 7. Set up email delivery
 
@@ -229,10 +229,10 @@ The extra templates are ready for future account features. The app currently use
 3. Click **Send sign-in link**, open the email and follow its button.
 4. Confirm that you return to the league with your name and an **Organiser** tab.
 5. Open **Organiser → Players & organisers**.
-6. Share the website address with players. They enter their email, follow the sign-in link, choose a league name and click **Join the league**. There is no old 15-player limit.
+6. Share the website address with players. They enter their email, follow the sign-in link, enter their name and click **Join the league**. There is no old 15-player limit.
 7. You can also pre-add someone under **Organiser → Players & organisers → Add player**. Using that exact email then takes them straight into their existing player entry, with its name and picks preserved.
 
-Adding a player grants league access but **does not send an invitation email**. Players request their own sign-in links from the website. The **Invite user** email template is used only if an invitation is sent through Supabase; a verified recipient who has no player entry can now choose a league name and join. New arrivals can submit only for rounds that remain open; registration does not reopen deadlines or award catch-up points.
+Adding a player grants league access but **does not send an invitation email**. Players request their own sign-in links from the website. The **Invite user** email template is used only if an invitation is sent through Supabase; a verified recipient who has no player entry can now enter their name and join. New arrivals can submit only for rounds that remain open; registration does not reopen deadlines or award catch-up points.
 
 To add another organiser, click **Make organiser** beside an existing player. Add new people as players first, then promote them. All organisers have the same controls, including scoring, locks, backups and organiser permissions. **Make player** removes those privileges while preserving picks and scores. The app prevents removing the last organiser. Newly promoted organisers should refresh the website.
 
@@ -293,15 +293,23 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 
 For organiser management on an older installation, run [migrations/20260907_organisers.sql](migrations/20260907_organisers.sql) in Supabase, then refresh the website. This migration can be rerun and preserves players, picks, scores and existing organiser roles. Fresh installs using the current `schema.sql` already include it.
 
+### Optional team names
+
+Players enter their own name when joining. In **My picks**, they can separately choose a **Team name (optional)** and select **Save team name**. The saved team name appears above their picks and on the league table, with their player name underneath on the table. Existing players can use the same form. Names may contain up to 80 characters and can be changed later.
+
+**Naming a team never blocks joining or saving picks**, including an episode 1 squad. Unnamed players see a warning: if they have not chosen a name when the organiser locks **episode 1**, the league assigns one such as **Mark’s Secret Society**. Locking preseason predictions alone does not trigger this. Named teams keep their chosen names; late arrivals get a default if episode 1 is already locked. Players can rename an assigned team at any time. This uses the existing database and needs no scheduler or paid service.
+
+For an existing installation, run the whole [migrations/20260914_team_names.sql](migrations/20260914_team_names.sql) file in **Supabase → SQL Editor → New query → Run**, then refresh the website. It also includes the earlier self-registration upgrade, so there is no need to run that separately. The migration preserves player identities, names, picks, scores, locks and organiser roles and is safe to rerun. Fresh installs already include this in `schema.sql`.
+
 ### Enable players to join themselves
 
 This fixes the case where a player receives and follows a sign-in email, then sees **Your email is not on this league**.
 
-1. Open [migrations/20260914_self_registration.sql](migrations/20260914_self_registration.sql) in GitHub and copy the **whole file**.
+1. Open [migrations/20260914_team_names.sql](migrations/20260914_team_names.sql) in GitHub and copy the **whole file**.
 2. Open your existing project in [Supabase](https://supabase.com/dashboard), choose **SQL Editor → New query**, paste it and click **Run**.
-3. Wait for **Success**, then refresh the league website. A verified email without a player entry will see **What shall we call you?** Enter a league name and click **Join the league**.
+3. Wait for **Success**, then refresh the league website. A verified email without a player entry will see **What shall we call you?** Enter your name and click **Join the league**.
 
-Anyone who verifies their email can then join as an ordinary player. The migration adds one registration function and is safe to rerun. Existing player IDs, names, picks, organiser permissions, scores and locks are preserved. It also works for accounts that verified their email before the upgrade: refresh their existing signed-in page; a new email is needed only if they are no longer signed in. No email-template change or paid service is required.
+Anyone who verifies their email can then join as an ordinary player. The combined migration enables registration and optional team names, and is safe to rerun. Existing player IDs, names, picks, organiser permissions, scores and locks are preserved. It also works for accounts that verified their email before the upgrade: refresh their existing signed-in page; a new email is needed only if they are no longer signed in. No email-template change or paid service is required.
 
 The first organiser still needs the initial organiser insert from step 3. Registration deliberately never grants organiser access, even when there are no organisers yet. Website deployment alone cannot apply this database upgrade. Fresh installs using the current `schema.sql` already include it.
 

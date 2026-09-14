@@ -61,7 +61,7 @@ Hosted sign-in and email delivery require separate checks in the deployed site. 
 - `web/seed.json` is the browser demo seed. Live scores and roles come from Supabase, not this file.
 - Email HTML in `emails/` must be copied into Supabase's hosted templates to take effect.
 - `scripts/update_news.py` defines the feed query, publisher filters and deduplication. `web/news.mjs` handles the ticker, refresh checks, pause behaviour and reduced-motion display.
-- `join_league` registers the verified email from Supabase's authenticated identity with `is_admin=false`. It accepts only a display name, ignores user metadata for permissions and preserves existing records. `web/registration.mjs` classifies registration errors; `web/app.js` renders the join form only after the known missing-member response. Existing databases need `migrations/20260914_self_registration.sql`.
+- `join_league` registers the verified email from Supabase's authenticated identity with `is_admin=false`. It accepts only a display name, ignores user metadata for permissions and preserves existing records. `web/registration.mjs` classifies registration errors; `web/app.js` renders the join form only after the known missing-member response. Existing databases can run `migrations/20260914_team_names.sql`, which includes self-registration.
 - League backups include player emails and submitted picks. Keep exported JSON, SMTP passwords and Supabase secret keys out of the repository.
 
 ## Cast photographs
@@ -73,3 +73,11 @@ Nineteen Creative Commons portraits are bundled in `web/images/cast/`. The manif
 King Kenny and Sharon Rooney use external images from their official agency profiles. Those images are not bundled or claimed to be Creative Commons: copyright remains with their owners. Keep the agency source links with them, and check reuse permissions before redistributing those photographs separately. External images can be changed or removed by their hosts; a failed image falls back to initials without losing the name or other card details. A celebrity with no manifest entry also uses initials.
 
 For a visual check, open **The cast** in a disposable demo at desktop and phone widths. Check all 21 faces, their names, photo credits and the initials fallback (temporarily give one portrait an invalid URL in the disposable copy). Portraits load lazily as their cards approach the screen.
+
+### Team names
+
+`league_players.team_name` is nullable and separate from the player’s display name. Registration and draft validation do not require it. The authenticated `set_team_name` RPC updates only the current player; empty input clears the name before episode 1 locks. Names are trimmed, limited to 80 characters and escaped on display.
+
+A database trigger assigns defaults to unnamed players when episode 1 locks. `read_league` also fills missing defaults for late arrivals or an already-locked installation. Defaults use the player’s name plus “’s Secret Society”, within the same length limit. Chosen names are retained and players may rename later. Neither operation changes league revisions, picks or scoring. The combined team-name migration is transactional and safe to rerun.
+
+The profile save updates only its own UI and player data, preserving unsaved draft selections and captain choices. Conversely, saving picks restores unfinished team-name edits using `EditTracker`. `tests/team-names.database.mjs` covers ownership, optional episode 1 participation, defaults, late arrivals and upgrade preservation; it runs as part of the normal database suite.

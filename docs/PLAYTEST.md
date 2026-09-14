@@ -233,3 +233,19 @@ Screenshot or exact error text:
 ```
 
 Keep account passwords, sign-in links, verification codes and real private backups out of bug reports or public issues.
+
+## Optional team names
+
+- [ ] Join as a new player using only your own name. Go straight to episode 1, select eight celebrities and a captain, then save without naming the team. Reload and confirm the picks remain.
+- [ ] Before episode 1 locks, an unnamed player sees a clear warning that a name will be chosen for them at lockdown. Existing players can name their team in My picks without joining again.
+- [ ] Save a team name; confirm it appears above the picks and in the league table, with the player’s name below. Refresh and sign back in to check persistence.
+- [ ] Select some unsaved picks and a captain, then save a team name. The selections and captain must remain. Save picks while a team-name edit is unfinished; the unfinished name must remain in its field and still trigger the unsaved-changes warning when leaving.
+- [ ] Leave the team name blank or clear it before episode 1 locks. Picks remain usable and the naming warning returns. A failed name save must keep the field editable and must not stop picks being saved.
+- [ ] Lock preseason predictions only: unnamed teams must stay unnamed. Lock episode 1: every unnamed player receives a default, chosen names remain unchanged, and points and saved picks are unchanged. Repeated reads and scoring updates must not rename teams again.
+- [ ] Add/join a player after episode 1 locks: they receive a default name, but cannot submit to locked rounds. They can change the assigned name later.
+- [ ] Try a long name (80 characters), punctuation and HTML-looking text. It displays as text and fits the mobile page. A direct request with more than 80 characters must fail without changing the previous name.
+- [ ] An ordinary player can rename only their own team and cannot alter anyone else’s identity, name, email, organiser role or picks. Anonymous users and non-members cannot rename teams.
+
+Automated database checks cover optional episode 1 participation, ownership, privacy, name validation, lock assignment, late arrivals and repeatable upgrades. Live sign-in and cross-device checks still require the Supabase migration and real player sessions.
+
+On 14 September 2026, the full local unit/news/database suites passed. Browser checks against disposable PostgreSQL-backed fixtures (simulated authentication, no real emails) verified joining and saving episode 1 picks without a team name, persistence after reload, names on both pages, preserving unsaved squad/captain and name edits in either save order, missing-migration recovery without blocking picks, and 80-character names at a 390px mobile width. The hosted database upgrade and real-email/cross-device rehearsal remain separate steps.
