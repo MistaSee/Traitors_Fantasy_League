@@ -31,9 +31,9 @@ npm test
 python3 -m unittest discover -s tests -p 'test_news.py'
 ```
 
-These are the checks run by [.github/workflows/test.yml](../.github/workflows/test.yml). The engine cases cover workbook seed integrity, draft validation, preseason roles, captain doubling, historical eligibility, final predictions and episode 1 teams with neutral-only scoring. Five additional edit-state cases cover unsaved changes, reverted changes, navigation scope and preservation of other sections after saving. News tests cover parsing, source/date filtering and deduplication.
+These checks run in [.github/workflows/test.yml](../.github/workflows/test.yml), which also installs the pinned PGlite test dependency and runs `tests/database.mjs`. The engine cases cover workbook seed integrity, draft validation, preseason roles, captain doubling, historical eligibility, final predictions and episode 1 teams with neutral-only scoring. Five additional edit-state cases cover unsaved changes, reverted changes, navigation scope and preservation of other sections after saving. Registration cases distinguish membership failures from other errors and explain an unapplied migration. News tests cover parsing, source/date filtering and deduplication.
 
-For the optional database and browser checks, install their local dependencies:
+For the database and optional browser checks locally, install their test dependencies:
 
 ```sh
 npm install --no-save --package-lock=false @electric-sql/pglite@0.3.14 playwright
@@ -41,7 +41,7 @@ npx playwright install chromium
 node tests/database.mjs
 ```
 
-The database suite runs the real SQL in an isolated PGlite database. It covers ordinary-player preseason submissions before any roles are revealed, preseason lock enforcement, access permissions, private drafts, validation, locked rounds, revision conflicts, adding players, organiser promotion/demotion, last-organiser protection and preservation of data when upgrading the old RPCs. The included `tests/episode-one.database.mjs` suite also checks the episode 1 migration, repeatability, existing-data preservation, independent locks, team-size validation and neutral-only scoring. It does not connect to your hosted Supabase project.
+The database suite runs the real SQL in an isolated PGlite database. It covers ordinary-player preseason submissions before any roles are revealed, preseason lock enforcement, access permissions, private drafts, validation, locked rounds, revision conflicts, adding players, organiser promotion/demotion, last-organiser protection and preservation of data when upgrading the old RPCs. The included `tests/episode-one.database.mjs` suite also checks the episode 1 migration, repeatability, existing-data preservation, independent locks, team-size validation and neutral-only scoring. `tests/registration.database.mjs` checks verified-email registration, rejection of unverified/mismatched identities, ordinary-player-only permissions, preservation of pre-added players and organisers, retry safety, migration repeatability and locked deadlines. It does not connect to your hosted Supabase project.
 
 For the browser suite, start the server on port 8765 **from a disposable demo copy with blank connection values**, then run this in another terminal in that copy:
 
@@ -61,6 +61,7 @@ Hosted sign-in and email delivery require separate checks in the deployed site. 
 - `web/seed.json` is the browser demo seed. Live scores and roles come from Supabase, not this file.
 - Email HTML in `emails/` must be copied into Supabase's hosted templates to take effect.
 - `scripts/update_news.py` defines the feed query, publisher filters and deduplication. `web/news.mjs` handles the ticker, refresh checks, pause behaviour and reduced-motion display.
+- `join_league` registers the verified email from Supabase's authenticated identity with `is_admin=false`. It accepts only a display name, ignores user metadata for permissions and preserves existing records. `web/registration.mjs` classifies registration errors; `web/app.js` renders the join form only after the known missing-member response. Existing databases need `migrations/20260914_self_registration.sql`.
 - League backups include player emails and submitted picks. Keep exported JSON, SMTP passwords and Supabase secret keys out of the repository.
 
 ## Cast photographs

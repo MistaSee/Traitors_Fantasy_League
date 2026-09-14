@@ -24,7 +24,7 @@ If Gmail app passwords are unavailable, there is an [alternative email setup](#a
 | Supabase | Stores players, picks and scores, and handles email sign-in. |
 | Gmail or another SMTP provider | Delivers the sign-in emails requested through Supabase. |
 
-The sign-in page is publicly reachable. League data requires a signed-in email that an organiser has added to the league. Players do not need GitHub, Cloudflare or Supabase dashboard accounts.
+The sign-in page is publicly reachable. Anyone who verifies their email can choose a league name and join as an ordinary player. Existing players go straight to the league. Organiser access is granted separately; registration never makes someone an organiser. Players do not need GitHub, Cloudflare or Supabase dashboard accounts.
 
 ## 1. Check the files in GitHub
 
@@ -162,7 +162,7 @@ Cloudflare will deploy future commits to `main` automatically. [Cloudflare repos
 
 The two URLs should match the site you actually open. These settings let the email link return players to the league after verifying their address. [Supabase redirect guide](https://supabase.com/docs/guides/auth/redirect-urls)
 
-New players need to create their authentication account on their first sign-in. The app separately checks that their email appears in the league's player list, so enabling signups does not grant everyone league access.
+New players create their authentication account on their first sign-in. After verifying their email, they choose a league name and click **Join the league**. This creates their player entry with ordinary player permissions. Anyone with the site address can join; player email addresses and organiser controls remain restricted to organisers, and open drafts stay private.
 
 ## 7. Set up email delivery
 
@@ -229,10 +229,10 @@ The extra templates are ready for future account features. The app currently use
 3. Click **Send sign-in link**, open the email and follow its button.
 4. Confirm that you return to the league with your name and an **Organiser** tab.
 5. Open **Organiser → Players & organisers**.
-6. Enter each player's name and email, then click **Add player**. Add as many players as you need before the season; there is no old 15-player limit.
-7. Share the website address with them. They sign in using the exact email you added.
+6. Share the website address with players. They enter their email, follow the sign-in link, choose a league name and click **Join the league**. There is no old 15-player limit.
+7. You can also pre-add someone under **Organiser → Players & organisers → Add player**. Using that exact email then takes them straight into their existing player entry, with its name and picks preserved.
 
-Adding a player grants league access but **does not send an invitation email**. Players request their own sign-in links from the website. The **Invite user** email template is used only if an invitation is sent through Supabase, and the recipient still needs a league player entry.
+Adding a player grants league access but **does not send an invitation email**. Players request their own sign-in links from the website. The **Invite user** email template is used only if an invitation is sent through Supabase; a verified recipient who has no player entry can now choose a league name and join. New arrivals can submit only for rounds that remain open; registration does not reopen deadlines or award catch-up points.
 
 To add another organiser, click **Make organiser** beside an existing player. Add new people as players first, then promote them. All organisers have the same controls, including scoring, locks, backups and organiser permissions. **Make player** removes those privileges while preserving picks and scores. The app prevents removing the last organiser. Newly promoted organisers should refresh the website.
 
@@ -293,6 +293,18 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 
 For organiser management on an older installation, run [migrations/20260907_organisers.sql](migrations/20260907_organisers.sql) in Supabase, then refresh the website. This migration can be rerun and preserves players, picks, scores and existing organiser roles. Fresh installs using the current `schema.sql` already include it.
 
+### Enable players to join themselves
+
+This fixes the case where a player receives and follows a sign-in email, then sees **Your email is not on this league**.
+
+1. Open [migrations/20260914_self_registration.sql](migrations/20260914_self_registration.sql) in GitHub and copy the **whole file**.
+2. Open your existing project in [Supabase](https://supabase.com/dashboard), choose **SQL Editor → New query**, paste it and click **Run**.
+3. Wait for **Success**, then refresh the league website. A verified email without a player entry will see **What shall we call you?** Enter a league name and click **Join the league**.
+
+Anyone who verifies their email can then join as an ordinary player. The migration adds one registration function and is safe to rerun. Existing player IDs, names, picks, organiser permissions, scores and locks are preserved. It also works for accounts that verified their email before the upgrade: refresh their existing signed-in page; a new email is needed only if they are no longer signed in. No email-template change or paid service is required.
+
+The first organiser still needs the initial organiser insert from step 3. Registration deliberately never grants organiser access, even when there are no organisers yet. Website deployment alone cannot apply this database upgrade. Fresh installs using the current `schema.sql` already include it.
+
 ### Enable episode 1 teams on an existing league
 
 1. Download a league backup from **Organiser**.
@@ -328,7 +340,7 @@ Plan details checked **7 September 2026**. This setup is designed for a small le
 | Email sends are rate-limited | Wait before retrying and check Authentication's Rate Limits and your sender's limits. Repeated requests can make the delay worse. |
 | The email link opens `localhost` or the wrong website | Correct Site URL and Redirect URLs in step 6, then request a new email. |
 | The link has expired or was already used | Request a fresh sign-in link and use the newest email. Each link is single-use. |
-| **Your email is not on this league** | An organiser must add the exact email used to sign in. For the first organiser, check the insert in step 3. |
+| **Your email is not on this league**, or **joining is not enabled yet** | Apply the self-registration migration above and refresh the latest website. Verified new players can then choose a name and join. For the first organiser, also check the organiser insert in step 3. |
 | No **Organiser** tab | Check the signed-in email is the organiser's email. If just promoted, refresh. |
 | **Organiser permissions are not available yet** | Run `migrations/20260907_organisers.sql` on the existing project and refresh. |
 | Emails still have default wording | Save both Magic Link and Confirm signup in Supabase, then request a new email. GitHub changes do not update hosted templates. |

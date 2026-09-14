@@ -1,11 +1,12 @@
 import {validateDraft, score, characterPoints, episodeOneTeamSize, episodeScoringRules} from './engine.mjs';
 import {EditTracker, readForm, restoreForm, confirmDiscard} from './edits.mjs';
 import {castPhotos} from './cast-photos.mjs';
+import {needsRegistration, registrationError} from './registration.mjs';
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seed = await fetch('./seed.json').then(r=>r.json());
 const cfg = window.LEAGUE_CONFIG;
-let api, data, tab='Standings', episode=null, kind=null, selected=[], captain='', scoredCharacter=seed.characters[0]?.id||'', saving=false, navigating=false;
+let api, data, signedInEmail='', tab='Standings', episode=null, kind=null, selected=[], captain='', scoredCharacter=seed.characters[0]?.id||'', saving=false, navigating=false;
 const edits = new EditTracker();
 const sectionNames = {picks:'Your picks', add:'New player', season:'Season controls', 'episode-form':'Episode setup', counts:'Event counts', 'rules-form':'Scoring values'};
 const demo = !cfg.url || !cfg.publishableKey;
@@ -55,8 +56,31 @@ async function saveState(next,section){
  });
 }
 function login(){
- $('#app').innerHTML=`<section class="hero"><div class="eyebrow">Trust your instincts</div><h1>A seat at<br>the Round Table.</h1><p>Your celebrities. Your suspicions. One very competitive league.</p></section><section class="panel login"><h2>Enter the castle</h2><p class="muted">Use the email your organiser added to the league. We’ll send you a private sign-in link.</p><form id="login"><label>Email address<input type="email" id="email" required autocomplete="email" placeholder="you@example.com"></label><button class="primary">Send sign-in link</button></form></section>`;
+ $('#app').innerHTML=`<section class="hero"><div class="eyebrow">Trust your instincts</div><h1>A seat at<br>the Round Table.</h1><p>Your celebrities. Your suspicions. One very competitive league.</p></section><section class="panel login"><h2>Enter the castle</h2><p class="muted">Enter your email to sign in or join the league. We’ll send you a private sign-in link. New players choose their league name after verifying their email.</p><form id="login"><label>Email address<input type="email" id="email" required autocomplete="email" placeholder="you@example.com"></label><button class="primary">Send sign-in link</button></form></section>`;
  bind('#login','submit',async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{const {error}=await api.auth.signInWithOtp({email:$('#email').value.trim(),options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;notice('Check your email for your sign-in link.');}finally{button.disabled=false;}});
+}
+async function useAnotherEmail(){
+ await performSave(async()=>{
+  const {error}=await api.auth.signOut({scope:'local'});if(error)throw error;
+  data=null;signedInEmail='';edits.clear();$('#account').innerHTML='';login();notice('Enter the email you want to use.');
+ },'Signing out…');
+}
+function register(){
+ $('#account').textContent='Email verified';
+ $('#app').innerHTML=`<section class="hero"><div class="eyebrow">The castle doors are open</div><h1>Take your seat.<br>Trust no one.</h1><p>Your email is verified. There’s one last introduction to make.</p></section><section class="panel login"><h2>What shall we call you?</h2><p>You’re joining as <strong class="account-email">${esc(signedInEmail)}</strong>.</p><form id="join"><label>Your league name<input id="league-name" required maxlength="80" autocomplete="nickname" aria-describedby="name-help" placeholder="A name your rivals will recognise"></label><p id="name-help" class="muted">This name appears on the leaderboard. You’ll join as a player and can make picks for any rounds still open.</p><p id="join-error" role="alert"></p><button class="primary">Join the league</button></form><button id="join-exit" class="space">Use another email</button></section>`;
+ bind('#join','submit',async e=>{
+  e.preventDefault();const name=$('#league-name').value.trim();$('#join-error').textContent='';
+  if(!name){$('#join-error').textContent='Choose a league name between 1 and 80 characters.';return;}
+  try{
+   await performSave(async()=>{data=await rpc('join_league',{player_name:name});tab='Standings';render();notice('Your seat is reserved. Welcome to the league.');},'Reserving your seat…');
+  }catch(error){$('#join-error').textContent=registrationError(error);notice('Your seat hasn’t been reserved yet.');}
+ });
+ bind('#join-exit','click',useAnotherEmail);
+}
+function accessError(error){
+ if(signedInEmail&&needsRegistration(error)){register();return;}
+ $('#app').innerHTML=`<section class="panel"><h2>We couldn’t open the league</h2><p>${esc(error.message)}</p>${signedInEmail?`<p class="muted">Signed in as <span class="account-email">${esc(signedInEmail)}</span></p>`:''}<div class="row"><button id="retry">Try again</button>${api?'<button id="exit">Use another email</button>':''}</div></section>`;
+ bind('#retry','click',()=>location.reload());bind('#exit','click',useAnotherEmail);
 }
 function render(){
  edits.clear();
@@ -172,6 +196,6 @@ if(demo){
  data.players=data.players.map(p=>({...p,is_admin:typeof p.is_admin==='boolean'?p.is_admin:p.id===data.me.id&&Boolean(data.me.is_admin)}));
  render();
 }else{
- try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2.57.4');api=createClient(cfg.url,cfg.publishableKey);const {data:auth,error}=await api.auth.getSession();if(error)throw error;if(auth.session)await refresh();else login();}
- catch(error){$('#app').innerHTML=`<section class="panel"><h2>We couldn’t open the league</h2><p>${esc(error.message)}</p><button id="retry">Try again</button><button id="exit">Use another email</button></section>`;bind('#retry','click',()=>location.reload());bind('#exit','click',async()=>{await api?.auth.signOut();location.reload();});}
+ try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2.57.4');api=createClient(cfg.url,cfg.publishableKey);const {data:auth,error}=await api.auth.getSession();if(error)throw error;signedInEmail=auth.session?.user?.email||'';if(auth.session)await refresh();else login();}
+ catch(error){accessError(error);}
 }

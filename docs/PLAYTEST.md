@@ -148,7 +148,9 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 - [ ] **AUTH-01 — First sign-in:** A and B each receive the themed email, return to the correct test-site URL and see their own name. Only A initially sees Organiser.
 - [ ] **AUTH-02 — Returning sessions:** refresh and reopen the browser; saved picks persist. Sign out and sign back in as the other player; the new account sees its own selections.
-- [ ] **AUTH-03 — Unlisted email:** an address absent from the player list cannot read league data after authentication. It may still receive a sign-in email; league access is checked separately.
+- [ ] **AUTH-03 — New player registration:** an address absent from the player list receives a sign-in link, verifies its email and sees **What shall we call you?**. A valid league name and **Join the league** open Standings with that name and no Organiser tab. Reload/sign in again: the same player and saved picks remain, with no duplicate entry. A Supabase account that verified before the migration can join too.
+- [ ] **AUTH-03a — Registration failures:** an empty/whitespace-only name is refused. A failed network request preserves the entered name and allows retry. In a separate test installation without the self-registration migration, joining explains that registration setup is unfinished rather than exposing a raw missing-function error.
+- [ ] **AUTH-03b — Registration permissions:** unverified/anonymous users cannot register. New players cannot read player emails or other players’ open drafts, change scores or promote themselves. Pre-added players and existing organisers keep their names, picks and permissions. Joining after a deadline does not allow submissions for that locked round.
 - [ ] **AUTH-04 — Used or expired link:** in a signed-out browser, a used/expired link cannot create a fresh session. Requesting a new link restores access.
 - [ ] **AUTH-05 — Correct email identity:** the sender Gmail account can differ from the organiser/player address. Case differences in the same email do not create duplicate league players.
 

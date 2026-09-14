@@ -57,3 +57,4 @@ input,select{font:inherit;max-width:100%;border:1px solid #56604d;background:#0b
 .photo-credits ul{padding-left:20px;line-height:1.8}
 .photo-credits li{margin-bottom:12px}
 @media(max-width:760px){.cast-directory{gap:12px}.cast-card{flex-direction:column;align-items:stretch;gap:12px;padding:12px}.cast-portrait{width:100%;height:auto;aspect-ratio:1}.cast-info>b{font-size:14px}.cast-info{flex:1}.person .cast-role{margin-top:9px}.photo-credits{font-size:11px}}
+.account-email{overflow-wrap:anywhere}#join-error:not(:empty){padding:12px;border-left:2px solid var(--gold);background:#30251e;color:#eed5b3;line-height:1.6}

@@ -30,7 +30,7 @@ These files are a saved copy of the template. Pushing them to GitHub or deployin
 
 The app currently uses email-link sign-in. These templates prepare the other email types; they do not add new account screens or send invitations.
 
-- **Invite user:** Supabase's invitation flow triggers this template. **Organiser → Add player** only adds the league roster entry and sends no email. The invited address must also have a league roster entry to access the league.
+- **Invite user:** Supabase's invitation flow triggers this template. **Organiser → Add player** only adds the league roster entry and sends no email. After the self-registration upgrade, a verified recipient without a league entry can choose a league name and join as a player. Existing roster entries keep their name, picks and permissions.
 - **Change email address:** the app has no self-service email-change screen. League membership is matched by email, so the organiser must also update the existing player's roster email as part of a supported change flow, preserving their player ID and picks.
 - **Reset password:** the app has no password login or reset screen. Before offering password recovery, add a recovery destination where the authenticated user can choose and save a new password.
 - **Reauthentication:** the app has no verification-code entry screen. Before using this flow, add the account action that requests the code and submits it to Supabase.
