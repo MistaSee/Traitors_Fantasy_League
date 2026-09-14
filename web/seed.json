@@ -578,6 +578,14 @@
       "locked": false,
       "roster": {},
       "counts": {}
+    },
+    {
+      "number": 10,
+      "traitors": 1,
+      "faithful": 3,
+      "locked": false,
+      "roster": {},
+      "counts": {}
     }
   ],
   "preseasonLocked": false,

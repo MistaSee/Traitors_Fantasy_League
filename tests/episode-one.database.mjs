@@ -9,6 +9,7 @@ create function auth.jwt() returns jsonb language sql as $$ select current_setti
 create function auth.uid() returns uuid language sql as $$ select (auth.jwt()->>'sub')::uuid $$;`);
 await db.exec(readFileSync(new URL('../schema.sql',import.meta.url),'utf8'));
 const seed = JSON.parse(readFileSync(new URL('../web/seed.json',import.meta.url)));
+seed.episodes=seed.episodes.slice(0,9);
 delete seed.episodes[0].teamSize;
 seed.episodes[0].counts = {'4':{SHIELD_RECEIVED:1,TRAITOR_MURDER_SUCCESS:99}};
 await db.query('insert into public.league_config values(1,$1,0)',[seed]);

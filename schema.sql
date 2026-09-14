@@ -56,7 +56,7 @@ begin
  if s is null then raise exception 'League is not initialised'; end if;
  if entry_kind not in ('weekly','preseason','final') or entry_kind is null then raise exception 'Invalid entry type'; end if;
  if entry_kind='final' then
-   if episode_number is distinct from 9 or (s->>'finalLocked')::boolean or coalesce(entry_payload->>'side','') not in ('Faithful','Traitors') then raise exception 'Final prediction is locked or invalid'; end if;
+   if episode_number is distinct from jsonb_array_length(s->'episodes') or (s->>'finalLocked')::boolean or coalesce(entry_payload->>'side','') not in ('Faithful','Traitors') then raise exception 'Final prediction is locked or invalid'; end if;
    entry_payload := jsonb_build_object('side',entry_payload->>'side');
  else
    picks := entry_payload->'picks';
@@ -69,7 +69,7 @@ begin
      if episode_number is distinct from 1 or n<>3 or (s->>'preseasonLocked')::boolean then raise exception 'Preseason predictions are locked or invalid'; end if;
      entry_payload := jsonb_build_object('picks',picks);
    else
-     if episode_number is null or episode_number<1 or episode_number>9 then raise exception 'Invalid episode'; end if;
+     if episode_number is null or episode_number<1 or episode_number>jsonb_array_length(s->'episodes') then raise exception 'Invalid episode'; end if;
      ep := s->'episodes'->(episode_number-1);
      if ep is null or (ep->>'locked')::boolean then raise exception 'Episode is locked'; end if;
      if episode_number=1 then
@@ -95,7 +95,8 @@ begin
  select * into old from public.league_config where id=1 for update;
  if old.revision is distinct from expected_revision then raise exception 'The league changed in another window. Refresh before saving.'; end if;
  if (old.state->>'preseasonLocked')::boolean and new_state->'rules' is distinct from old.state->'rules' then raise exception 'Scoring values are frozen for the season'; end if;
- if jsonb_typeof(new_state->'episodes') is distinct from 'array' or jsonb_array_length(new_state->'episodes')<>9 then raise exception 'Nine episodes required'; end if;
+ if jsonb_typeof(new_state->'episodes') is distinct from 'array' or jsonb_array_length(new_state->'episodes')<>jsonb_array_length(old.state->'episodes') then raise exception 'Keep all % episodes in the league', jsonb_array_length(old.state->'episodes'); end if;
+ if exists(select 1 from jsonb_array_elements(new_state->'episodes') with ordinality as rounds(value,position) where rounds.value->'number' is distinct from to_jsonb(rounds.position)) then raise exception 'Episodes must stay numbered consecutively from 1'; end if;
  if jsonb_typeof(new_state->'characters') is distinct from 'array' or jsonb_typeof(new_state->'rules') is distinct from 'array' then raise exception 'Missing cast or rules'; end if;
  if new_state->>'winner' not in ('','Faithful','Traitors') then raise exception 'Invalid winner'; end if;
  for ep in select value from jsonb_array_elements(new_state->'episodes') loop

@@ -71,7 +71,7 @@ Keep this project open in a browser tab for the next steps.
 2. Copy all of [seed.sql](seed.sql) into it.
 3. Click **Run**.
 
-This loads **21 celebrities, 47 scoring rules and 9 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
+This loads **21 celebrities, 47 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
 
 To check the import, run this in a new query:
 
@@ -84,7 +84,7 @@ from public.league_config
 where id = 1;
 ```
 
-**Expected result:** one row containing `21`, `47` and `9`.
+**Expected result:** one row containing `21`, `47` and `10`.
 
 ### Add yourself as the first organiser
 
@@ -270,8 +270,8 @@ Episode 1 scores only rules labelled **Any role**: shields, missions, confession
 ### Each episode
 
 1. For episode 1, check the team size and eligible cast before collecting picks. No role setup is required.
-2. For episode 2, choose **Copy starting roles**, update anyone eliminated during episode 1, and save. For episodes 3–9, copy the previous episode's roster, update roles and eliminations, and save. These describe who is active **before** that episode. A celebrity eliminated during episode 2 should become unavailable in episode 3's roster.
-3. Check the draft slot counts. Defaults are 2 Traitors + 6 Faithful for episodes 2–6, then 1 + 3 for episodes 7–9. Adjust before players submit if the available cast requires it.
+2. For episode 2, choose **Copy starting roles**, update anyone eliminated during episode 1, and save. For episodes 3–10, copy the previous episode's roster, update roles and eliminations, and save. These describe who is active **before** that episode. A celebrity eliminated during episode 2 should become unavailable in episode 3's roster.
+3. Check the draft slot counts. Defaults are 2 Traitors + 6 Faithful for episodes 2–6, then 1 + 3 for episodes 7–10. Adjust before players submit if the available cast requires it.
 4. Players choose a fresh team and a captain. Celebrities can appear on multiple players' teams. The captain doubles positive and negative points.
 5. Manually lock that episode's drafts before broadcast. Its roster and draft requirements then become fixed.
 6. Record each celebrity's event counts and save. Counts remain editable for corrections. Players can use **Refresh scores** to retrieve the latest totals.
@@ -292,6 +292,20 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 | Scores, draft eligibility and player roles | Save through the Organiser controls. |
 
 For organiser management on an older installation, run [migrations/20260907_organisers.sql](migrations/20260907_organisers.sql) in Supabase, then refresh the website. This migration can be rerun and preserves players, picks, scores and existing organiser roles. Fresh installs using the current `schema.sql` already include it.
+
+### Extend the league to ten episodes
+
+Series 2 has ten episodes. Fresh installations already include episode 10. For an existing nine-episode league:
+
+1. Open [migrations/20260914_ten_episodes.sql](migrations/20260914_ten_episodes.sql) and copy the **whole file**.
+2. In Supabase, open **SQL Editor → New query**, paste it, then select **Run**.
+3. Wait for **Success**, then refresh the website. Player and organiser episode menus should include **10**, and the season counter should show **/ 10**.
+
+The upgrade adds an open episode 10 with **1 Traitor + 3 Faithful**, a captain, and all the usual scoring rules. Its roster and event counts start empty: before collecting episode 10 teams, copy episode 9’s roster in **Organiser**, update eligibility and save. The organiser can adjust the quota before teams are submitted.
+
+Saved final-side predictions move from round 9 to round 10 with their choices and timestamps preserved. Weekly episode 9 picks stay in episode 9. Existing scores, player/team names, organiser permissions and locks are preserved; no locked prediction is reopened. Correct final-side predictions still earn **25 points**.
+
+This migration is transactional and safe to rerun. It updates two functions and the season data; it does not delete records or drop tables or triggers. Run it **after** any older episode 1 migration, since that historical file contains the old nine-episode checks. Website deployment alone does not update the Supabase season. No additional service or cost is needed.
 
 ### Optional team names
 
@@ -322,7 +336,7 @@ The first organiser still needs the initial organiser insert from step 3. Regist
 
 The migration updates two database functions and adds the episode 1 size. It preserves players, saved predictions, scores, cast history and locks, and is safe to rerun. If episode 1 is already locked, it stays locked; the migration does not reopen it. Later episodes keep their role quotas. No paid service or extra hosting is needed.
 
-Until this upgrade is run, the updated website keeps the existing episode 2–9 draft flow. Fresh installations using the current `schema.sql` and `seed.sql` already include episode 1.
+Until the episode 1 upgrade is run, the website keeps the existing draft flow starting at episode 2. If you also need the ten-episode upgrade above, run it after this older migration. Fresh installations using the current `schema.sql` and `seed.sql` already include episode 1.
 
 Do not rerun `schema.sql` or `seed.sql` as a routine update. They are initial setup files, not migrations.
 
@@ -352,6 +366,7 @@ Plan details checked **7 September 2026**. This setup is designed for a small le
 | No **Organiser** tab | Check the signed-in email is the organiser's email. If just promoted, refresh. |
 | **Organiser permissions are not available yet** | Run `migrations/20260907_organisers.sql` on the existing project and refresh. |
 | Emails still have default wording | Save both Magic Link and Confirm signup in Supabase, then request a new email. GitHub changes do not update hosted templates. |
+| Episode 10 is missing, or an error says **Nine episodes required** | Run `migrations/20260914_ten_episodes.sql` after any older migrations, then refresh. |
 | Episode 1 is missing from Episode team | Run `migrations/20260907_episode_one.sql` on the existing project and refresh. |
 | No celebrities available for a weekly draft | Set that episode's active roster, known roles and slot counts under Organiser, then save. |
 | **The league changed in another window** | Refresh to load the latest data, then reapply your changes. |

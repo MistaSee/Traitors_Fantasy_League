@@ -1,10 +1,11 @@
+import {finalEpisode} from './season.mjs';
 export function episodeOneTeamSize(state) {
   const size = state.episodes.find(e => e.number === 1)?.teamSize;
   return Number.isInteger(size) && size > 0 ? size : 0;
 }
 export function validateDraft(state, episode, picks, captain) {
   const ep = state.episodes.find(e => e.number === episode);
-  if (!ep) return 'Choose an episode from 1 to 9.';
+  if (!ep) return `Choose an episode from 1 to ${finalEpisode(state)}.`;
   const opening = episode === 1;
   if (opening && !episodeOneTeamSize(state)) return 'Episode 1 teams are not enabled for this league yet.';
   if (ep.locked) return 'This episode is locked.';

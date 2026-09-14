@@ -29,7 +29,7 @@ To correct three confessionals to four, change the count to `4` and save. You ar
 
 ### Scoring details to agree before play
 
-- Team scoring covers **episodes 1–9** after the episode 1 upgrade. Episode 1 accepts any eight eligible celebrities plus a captain and scores **only rules labelled Any role**. Its points appear under Weekly. Three original-Traitor predictions remain a separate preseason entry. Episodes 2–9 keep their role quotas and all scoring rules.
+- Team scoring covers **episodes 1–10** after the episode 1 upgrade. Episode 1 accepts any eight eligible celebrities plus a captain and scores **only rules labelled Any role**. Its points appear under Weekly. Three original-Traitor predictions remain a separate preseason entry. Episodes 2–10 keep their role quotas and all scoring rules.
 - Preseason awards **5 points per correctly predicted original Traitor**, plus **5 for all three correct**. It uses starting roles, so later recruitment must be recorded in episode rosters rather than changing starting roles.
 - Captaincy doubles penalties as well as rewards.
 - Group events must be recorded for each eligible celebrity. Recording a murder, elimination or shield does not automatically award related events, change roles or update another celebrity's counts.
@@ -249,3 +249,17 @@ Keep account passwords, sign-in links, verification codes and real private backu
 Automated database checks cover optional episode 1 participation, ownership, privacy, name validation, lock assignment, late arrivals and repeatable upgrades. Live sign-in and cross-device checks still require the Supabase migration and real player sessions.
 
 On 14 September 2026, the full local unit/news/database suites passed. Browser checks against disposable PostgreSQL-backed fixtures (simulated authentication, no real emails) verified joining and saving episode 1 picks without a team name, persistence after reload, names on both pages, preserving unsaved squad/captain and name edits in either save order, missing-migration recovery without blocking picks, and 80-character names at a 390px mobile width. The hosted database upgrade and real-email/cross-device rehearsal remain separate steps.
+
+## Ten-episode season
+
+- [ ] After the ten-episode SQL upgrade, both player and organiser episode menus include 10; the season counter shows / 10. An older nine-episode installation remains usable before upgrading and shows the organiser an upgrade message.
+- [ ] Compare a backup before/after upgrading: episodes 1–9, weekly picks, names, organiser roles, counts and locks are unchanged. Final-side predictions have moved to 10, keeping choices and timestamps. Run the migration again and confirm no data or revision change.
+- [ ] In Organiser, select episode 10. It starts open with 1 Traitor + 3 Faithful and empty counts. Copy episode 9’s roster, update active celebrities and save. This must not change episode 9’s roster or score.
+- [ ] As a player, choose the episode 10 team and captain, save and reload. Open teams stay private. Rename the optional team while an episode 10 draft is unfinished and confirm the selection survives.
+- [ ] Open Final · episode 10 winning side. Check any migrated prediction, update it while open, and reload. There should be one final prediction per player.
+- [ ] Lock episode 10 and record counts. Captain doubling, penalties and role-specific points all apply. Lock final predictions separately; a correct prediction still adds exactly 25 points. Both locks reject further submissions.
+- [ ] Repeat the upgrade against a disposable already-locked season; it must not reopen rounds or final predictions. Changing the episode count or reordering rounds through an organiser save must be rejected.
+
+Automated checks cover fresh and upgraded seasons, cached demo preservation, migrated final predictions, timestamps, repeatability, permissions, score totals, stale revisions, locks and atomic rollback if conflicting final predictions exist.
+
+On 14 September 2026, 16 unit tests, six news tests and all five isolated database suites passed for the ten-episode update. Browser checks against an upgraded disposable database verified both menus through episode 10, the / 10 counter, a migrated final choice and its update after reload, copying episode 9’s roster into episode 10, saving an episode 10 squad/captain, and saving role-specific event counts in episode 10. Authentication was simulated and no live league data was changed.
