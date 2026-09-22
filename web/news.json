@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-22T16:58:15.817853+00:00",
+  "checkedAt": "2026-09-22T21:20:26.142852+00:00",
   "feed": "Google News RSS",
   "stories": [
     {
@@ -11,7 +11,7 @@
     {
       "title": "James Acaster shares ‘concern’ over ‘tainted’ Celebrity Traitors role",
       "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPUXRVZVUzN2ZQMHNOQ18yM2xSaEJ1OGJlMnR0eDB0eG9GbjZwVW1IRGlvYTU4MllwUk0zLXhJQ01Ud3psNU01X29YQWlzZHQtYmdvUUl6TVlOdHRQVHFIYmFndGpkeEszcm9oVWRwa182clM5bWMwUzZhMjBoaEhQNXVvY2VzT2pUVHhlRWNVNnpOdUVpNTRfaFBHZFdRWExiZ3RNZnAwX0NoTDRKMWE4ZUpR?oc=5",
-      "source": "The Independent",
+      "source": "independent.co.uk",
       "publishedAt": "2026-09-22T12:19:00+00:00"
     },
     {
@@ -19,6 +19,12 @@
       "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOY2RvOHhJd3JuX3FuZHY0R1JYSXh3M1R6amxiSDFDb3NjdkJBUmtPTDdsNzJ1eFVod2tod2g1NGhKUnZ4bDU4Nk5ZWHN4SHNBTi1ZbGNtMHVGejRBNVZyMnR0ak9UVXZtSm9CVUtzLTZlS1BydHFQVGVIU21EYVNNVU1lWkFJdEhNT3p1ckxldGo0ZWdkQ3lTbExVM0s?oc=5",
       "source": "Digital Spy",
       "publishedAt": "2026-09-22T05:32:56+00:00"
+    },
+    {
+      "title": "Celebrity Traitors 2026 launch date confirmed by BBC in major series 2 update",
+      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPdkNpeDh0M01MS2s2eGFfbGJxeVh6UXBpOHpId0h1a3JDR0g0Z080MkRaa0lPV29tdU9KcmZIeHF0ODJsTDRZOUw0M0MwZGI3MVJVc2dCTHJkWXZIUG4tSkNzWE1hWi1zNXJVaGpoY1NqRzhJMVRTZjZRZTlpTnF4Z29aRXg0ajhIbTZkYlUyNjhmOUlPWnp5eE1CaEVPcFZ4TjR2NUJRU1pUUDIyZDNfMzZnUQ?oc=5",
+      "source": "London Evening Standard",
+      "publishedAt": "2026-09-22T03:54:33+00:00"
     },
     {
       "title": "The Celebrity Traitors' Ed Gamble ranks 2026 contestants as he promises a \"wildly different game\"",
@@ -31,12 +37,6 @@
       "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQUWVqYzQxUlcyYXNKaHM5SkN2SXZUZmR4OER6RWEzMThVdXAzYUljMFBYeTZGckw2SV9lZzJhRVhvVjFRbzNJQVVYZHp1bDhHenZWS1FSay0tTkdkemV5Ul9WcXdmRzNRSzgzS2J1emI0OW5acm5kSFpzSjhLVEp3R0lERDJ0azVPRU8wdjQ2UDJjMi1UdXpoT0E1OGxwZ0xLSUtDWWNxbnN2UQ?oc=5",
       "source": "BBC",
       "publishedAt": "2026-09-21T23:00:46+00:00"
-    },
-    {
-      "title": "Celebrity Traitors 2026 launch date confirmed by BBC in major series 2 update",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPdkNpeDh0M01MS2s2eGFfbGJxeVh6UXBpOHpId0h1a3JDR0g0Z080MkRaa0lPV29tdU9KcmZIeHF0ODJsTDRZOUw0M0MwZGI3MVJVc2dCTHJkWXZIUG4tSkNzWE1hWi1zNXJVaGpoY1NqRzhJMVRTZjZRZTlpTnF4Z29aRXg0ajhIbTZkYlUyNjhmOUlPWnp5eE1CaEVPcFZ4TjR2NUJRU1pUUDIyZDNfMzZnUQ?oc=5",
-      "source": "London Evening Standard",
-      "publishedAt": "2026-09-21T21:54:33+00:00"
     }
   ]
 }
