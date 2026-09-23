@@ -1,17 +1,23 @@
 {
-  "checkedAt": "2026-09-23T17:01:20.562794+00:00",
+  "checkedAt": "2026-09-23T21:31:08.051109+00:00",
   "feed": "Google News RSS",
   "stories": [
     {
+      "title": "Industry star reveals how she'll be \"battling\" her character's persona on Celebrity Traitors",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOTnZlQ0p6MmRhaWlKMlo5cEdDS1p5U1U4M1VJUS0zUUZ0VFVRY19PZTlzcmh5T3Q5Yll5LUpLVnhVNS11Ti1JQlNmM1ZFVGJlTXpiU0VpMnVPd3NGcXVlMnRobHJSY2xQd1dMVDNZR0Y2d1VJVHd0TjlSS3ZaZE5ycnFnSHFiZUJwcHNkbDBURE4wT0NRcnMzVHRuMA?oc=5",
+      "source": "Digital Spy",
+      "publishedAt": "2026-09-23T18:26:38+00:00"
+    },
+    {
       "title": "The 745 Game line-up 2026: Confirmed teams including Celebrity Traitors star Joe Marler",
       "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTFBhc2kyREJ2czZMWldyRlg1eFNzNjdjbnp5UU85akVMQS1La01NWkNidEdrblF1M25saUZkMzBtVGZpRkRhN0dPTjFqeFFQUFBrNGtQM2R1Q19ibE5WTF9vMlRKcFExWDRTLXBKT0JBekFHaGVBZXRJbUNXVFQwT1U?oc=5",
-      "source": "Radio Times",
+      "source": "radiotimes.com",
       "publishedAt": "2026-09-23T09:00:39+00:00"
     },
     {
       "title": "How Hannah Fry used mathematical skills during Celebrity Traitors",
       "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQYXB1b2JPaW1QMFRDYURMeDJjalJ5STBMYnQtX3BRZ0hpZ2VWMzFfLWJxZVYtMjQ1V2M0a3Nsb1hCNnRYbXd5X2gtSGlWWFF5UmFrOGVNOThDUFRKSDlMZUczMDQ5NWhEV0F1YjBoZ29rZGNiSU5LT3FVWmthSEN2cVl2VEtzaU16Ql9tLTdZTVdZRTNjMTM2bTI4RlQzQVhYalp3?oc=5",
-      "source": "independent.co.uk",
+      "source": "The Independent",
       "publishedAt": "2026-09-23T08:49:00+00:00"
     },
     {
@@ -27,16 +33,10 @@
       "publishedAt": "2026-09-22T15:53:00+00:00"
     },
     {
-      "title": "Taskmaster favourite James Acaster shares \"concern\" about Celebrity Traitors' new lineup",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOY2RvOHhJd3JuX3FuZHY0R1JYSXh3M1R6amxiSDFDb3NjdkJBUmtPTDdsNzJ1eFVod2tod2g1NGhKUnZ4bDU4Nk5ZWHN4SHNBTi1ZbGNtMHVGejRBNVZyMnR0ak9UVXZtSm9CVUtzLTZlS1BydHFQVGVIU21EYVNNVU1lWkFJdEhNT3p1ckxldGo0ZWdkQ3lTbExVM0s?oc=5",
-      "source": "digitalspy.com",
-      "publishedAt": "2026-09-22T05:32:56+00:00"
-    },
-    {
       "title": "Where to shop all of Claudia Winkleman's outfits from Celebrity Traitors series 2",
       "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOZVNnY2liRDd1emJFZmNEN1VsTHk1TmlSVEJCd0NNelQ4WE5WV3Q4ZFE2ZUVuU2xabFpqbS1pUFVSTHV3WTRhRk1SQ2FJaE1WT0l6azlsam1hQkhHNlFxSWNrNHdva25nbVQ0YTFjMjFSUXhkWFJPbURGUzJlY3NTUUJrN1hCa2dWTmNhanhHRXFJN21VMi1ud0FTUjlkYjViUzBv?oc=5",
-      "source": "goodhousekeeping.com",
-      "publishedAt": "2026-09-21T13:24:37+00:00"
+      "source": "Good Housekeeping",
+      "publishedAt": "2026-09-21T07:00:00+00:00"
     }
   ]
 }
