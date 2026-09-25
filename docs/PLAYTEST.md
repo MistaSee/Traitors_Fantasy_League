@@ -263,3 +263,12 @@ On 14 September 2026, the full local unit/news/database suites passed. Browser c
 Automated checks cover fresh and upgraded seasons, cached demo preservation, migrated final predictions, timestamps, repeatability, permissions, score totals, stale revisions, locks and atomic rollback if conflicting final predictions exist.
 
 On 14 September 2026, 16 unit tests, six news tests and all five isolated database suites passed for the ten-episode update. Browser checks against an upgraded disposable database verified both menus through episode 10, the / 10 counter, a migrated final choice and its update after reload, copying episode 9’s roster into episode 10, saving an episode 10 squad/captain, and saving role-specific event counts in episode 10. Authentication was simulated and no live league data was changed.
+
+## Shield scoring correction (25 September 2026)
+
+- [ ] Scoring lists 46 rules. The organiser has two positive shield awards: **Receives or wins a shield** (+8) and **Shield blocks an attempted murder** (+10), with no separate activation field in either event counts or scoring values.
+- [ ] Record one of each for a celebrity: they earn **18**, or **36** as captain. Check episode 1 and a later episode. The failed-murder penalty for the Traitors remains **−5**.
+- [ ] Upgrade a test league with old shield event counts, including a locked episode. Only the retired bonus disappears from totals; other events, point values, names, picks, rosters and locks remain intact. Rerunning the migration makes no further change.
+- [ ] Reload a cached demo and export a league backup: neither retains the retired rule or its counts.
+
+On 25 September 2026, all 18 unit tests, six news tests and six database suites passed. A disposable browser demo containing old shield counts showed 46 rules, no retired inputs, 18 points for receiving/blocking a shield and 36 with captaincy. Correcting a count saved and survived reload. These checks do not apply the cleanup to the hosted Supabase database.

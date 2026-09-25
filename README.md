@@ -71,7 +71,7 @@ Keep this project open in a browser tab for the next steps.
 2. Copy all of [seed.sql](seed.sql) into it.
 3. Click **Run**.
 
-This loads **21 celebrities, 47 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
+This loads **21 celebrities, 46 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
 
 To check the import, run this in a new query:
 
@@ -84,7 +84,7 @@ from public.league_config
 where id = 1;
 ```
 
-**Expected result:** one row containing `21`, `47` and `10`.
+**Expected result:** one row containing `21`, `46` and `10`.
 
 ### Add yourself as the first organiser
 
@@ -290,6 +290,20 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 | A database migration | Run the specified file in Supabase's SQL Editor. |
 | Email subject or HTML | Copy it into the matching Supabase email template and save. |
 | Scores, draft eligibility and player roles | Save through the Organiser controls. |
+
+### Scoring cleanup (25 September 2026)
+
+The league now has 46 scoring rules. Receiving a shield earns **+8** and blocking an attempted murder earns **+10**. These can total **18 points**, or **36 for the captain**. There is no separate activation bonus.
+
+The updated website applies this scoring to existing leagues immediately, including previously recorded events. To clean the stored Supabase rules and counts too:
+
+1. Copy the whole [scoring cleanup migration](migrations/20260925_retire_shield_activation.sql).
+2. Open your existing project in **Supabase → SQL Editor → New query**, paste it and click **Run**.
+3. Refresh any open league tabs before saving further changes.
+
+This removes only the retired rule and its counts. All other point values, events, players, picks, rosters and locks are preserved. It works after preseason locks, prevents old clients from restoring the retired event, and is safe to rerun. Any points previously awarded for that event no longer contribute to totals. Fresh installs already include the change; do not rerun the seed on an existing league.
+
+### Organiser accounts on older installations
 
 For organiser management on an older installation, run [migrations/20260907_organisers.sql](migrations/20260907_organisers.sql) in Supabase, then refresh the website. This migration can be rerun and preserves players, picks, scores and existing organiser roles. Fresh installs using the current `schema.sql` already include it.
 

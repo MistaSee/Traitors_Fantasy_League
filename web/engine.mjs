@@ -1,3 +1,4 @@
+import {activeScoringRules} from './scoring-rules.mjs';
 import {finalEpisode} from './season.mjs';
 export function episodeOneTeamSize(state) {
   const size = state.episodes.find(e => e.number === 1)?.teamSize;
@@ -20,7 +21,8 @@ export function validateDraft(state, episode, picks, captain) {
   return '';
 }
 export function episodeScoringRules(state, episode) {
-  return episode === 1 ? state.rules.filter(rule => rule.role === 'Any') : state.rules;
+  const rules = activeScoringRules(state);
+  return episode === 1 ? rules.filter(rule => rule.role === 'Any') : rules;
 }
 export function characterPoints(state, episode, id) {
   const ep = state.episodes.find(e => e.number === episode);

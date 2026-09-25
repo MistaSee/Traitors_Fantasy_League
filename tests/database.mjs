@@ -111,3 +111,5 @@ await import('./episode-one.database.mjs');
 await import('./registration.database.mjs');
 await import('./team-names.database.mjs');
 await import('./ten-episodes.database.mjs');
+
+await import('./scoring-rules.database.mjs');

@@ -2,7 +2,7 @@
 
 The workbook is a good basis: episode-by-episode shared teams avoid a draft-night scheduling problem, captaincy creates a differentiator, and the scoring rewards active play. The biggest weakness is overlapping and subjective scoring, not the spreadsheet interface.
 
-These are proposals for discussion, not rules silently applied to the app.
+Shield scoring is now +8 for obtaining a shield and +10 for blocking an attempted murder. The recommendations below remain proposals for discussion.
 
 ## Recommended changes
 
@@ -13,13 +13,12 @@ These are proposals for discussion, not rules silently applied to the app.
 | Major game move | +10 can duplicate almost any successful tactical event. | Set `POWER_MOVE` to 0 initially. Keep it only as a documented exceptional award agreed by the league. |
 | Confessionals | +1 each with a suggested, unenforced cap of 3. | Enforce 3 per episode. This is mostly editing exposure, so it should not dominate. The current app shows the note but does not impose a hard cap yet. |
 | Survival | Faithful survival +3; Traitors have zero-vote +3 and routine murder +10, plus deception bonuses. | Keep role quotas, which partly balance the difference. Do not claim the individual roles are equally profitable. Consider reducing routine murder to +5; test against an episode before deciding. |
-| Shield | Winning, using and blocking can stack to +22 before captaincy. | Keep +8 for obtaining and +10 for blocking. Remove the +4 use bonus to simplify the outcome. |
 | In-person murder | Could be +15 plus the normal +10. | Treat +15 as a replacement for the regular murder reward, not an additional +15. |
 | Subjective reads | Private/public reads can multiply through repeat accusations and hindsight. | At most one public-read and one private-read award per celebrity per episode. Require a specific named target and episode timestamp. No retroactive penalty merely because a defended person is later exposed. |
 | Quit/disqualification | -35/-25, doubled by captaincy, can swamp several episodes. | Decide whether to remove medical/compassionate withdrawals from quit penalties. Consider -10 for voluntary tactical quitting and -15 for disciplinary removal; publish the definition first. |
 | Delayed rewards | “Buses and survives next episode” has an unclear credit episode. | Credit the bonus in the next episode, when the condition becomes true, to the team holding that character then. State this explicitly. |
 
-I would start by removing the three redundant events above (banished-Faithful vote bonus, shield-use bonus, power move), specifying non-stacking influence awards and applying the confessional cap. Keep the remaining point values for a first playtest; avoid changing every variable at once. This is a design recommendation, not a statistically calibrated balance claim: the supplied workbook has no populated episode scores from which to estimate outcome distributions.
+I would start by removing the two redundant events above (banished-Faithful vote bonus and power move), specifying non-stacking influence awards and applying the confessional cap. Keep the remaining point values for a first playtest; avoid changing every variable at once. This is a design recommendation, not a statistically calibrated balance claim: the supplied workbook has no populated episode scores from which to estimate outcome distributions.
 
 ## Drafting upgrades
 
@@ -39,4 +38,4 @@ I would start by removing the three redundant events above (banished-Faithful vo
 
 ## Decisions to settle before launch
 
-Agree the final scoring changes, evidence standard, roster-size policy, exact lock deadlines and missed-draft treatment with players. Publish the rules before taking predictions and freeze point values at the preseason lock. The initial build deliberately preserves the workbook values so changes can be reviewed first.
+Agree the final scoring changes, evidence standard, roster-size policy, exact lock deadlines and missed-draft treatment with players. Publish the rules before taking predictions and freeze point values at the preseason lock. The app retains the other workbook values so further changes can be reviewed first.

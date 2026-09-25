@@ -7,6 +7,36 @@ alter table public.league_players enable row level security;
 alter table public.league_entries enable row level security;
 revoke all on public.league_config, public.league_players, public.league_entries from anon, authenticated;
 
+-- Remove only the retired scoring event, preserving all other league settings.
+create or replace function public.without_retired_scoring(s jsonb) returns jsonb
+language plpgsql immutable set search_path = '' as $$
+declare ep record; celebrity record;
+begin
+ s := jsonb_set(s, '{rules}', (select coalesce(jsonb_agg(value order by position),'[]'::jsonb)
+   from jsonb_array_elements(s->'rules') with ordinality as rules(value,position)
+   where value->>'id' is distinct from 'SHIELD_USED'));
+ for ep in select value, position from jsonb_array_elements(s->'episodes') with ordinality as rounds(value,position) loop
+   for celebrity in select key, value from jsonb_each(ep.value->'counts') loop
+     if celebrity.value ? 'SHIELD_USED' then
+       s := jsonb_set(s, array['episodes',(ep.position-1)::text,'counts',celebrity.key], celebrity.value - 'SHIELD_USED');
+     end if;
+   end loop;
+ end loop;
+ return s;
+end $$;
+revoke all on function public.without_retired_scoring(jsonb) from public, anon, authenticated;
+
+create or replace function public.remove_retired_scoring_on_write() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+ new.state := public.without_retired_scoring(new.state);
+ return new;
+end $$;
+revoke all on function public.remove_retired_scoring_on_write() from public, anon, authenticated;
+
+create trigger remove_retired_scoring_on_write before insert or update of state on public.league_config
+for each row execute function public.remove_retired_scoring_on_write();
+
 create function public.read_league() returns jsonb language plpgsql security definer set search_path = '' as $$
 declare me public.league_players; cfg public.league_config; result jsonb;
 begin

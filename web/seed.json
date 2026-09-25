@@ -153,14 +153,6 @@
       "notes": "Award when clearly shown or revealed."
     },
     {
-      "id": "SHIELD_USED",
-      "category": "Universal",
-      "role": "Any",
-      "label": "Uses a shield",
-      "points": 4,
-      "notes": "Use in addition to block bonus if relevant."
-    },
-    {
       "id": "BLOCKS_MURDER_WITH_SHIELD",
       "category": "Universal",
       "role": "Any",

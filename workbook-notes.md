@@ -9,3 +9,5 @@ Intentional corrections: preseason predictions use starting roles, not current r
 Episode 1 extension: the workbook’s zero Traitor/Faithful slots for episode 1 are retained as source values, alongside a new default teamSize of 8. Players choose any eligible celebrities and a captain; only Any-role rules score for episode 1. The separate three-Traitor prediction and episode 2–9 role quotas are unchanged.
 
 Season-length correction: the supplied workbook contains nine episode rows. The app now has ten episodes for series 2. Episode 10 extends the late-season quota with 1 Traitor + 3 Faithful and the usual captain/scoring rules; its roster and counts start empty. Final-side predictions belong to episode 10. The original workbook and the settings for episodes 1–9 are preserved. [Season-length report](https://www.tvzoneuk.com/post/thecelebritytraitors-extendeds2-ratingsrep1)
+
+Scoring correction: the app retains 46 of the 47 source rules. Shield scoring awards +8 for obtaining a shield and +10 when it blocks an attempted murder, with no separate activation bonus. The original workbook is unchanged.
