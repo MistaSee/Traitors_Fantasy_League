@@ -13,12 +13,13 @@ All templates use the same dark green, gold and burgundy design. Each HTML file 
 
 ## Apply in Supabase
 
-1. Open the project's **Authentication → Email → Templates** settings.
+1. Open the project's **Authentication → Email Templates** settings.
 2. Open each template listed above. Replace its subject with the matching subject and its HTML body with the full contents of the matching file, then save. Copy the HTML source from a code editor, not the text of a rendered browser preview.
 3. Use `sign-in.html` for both **Magic Link** and **Confirm signup**. The app's email sign-in also creates an account for a new player, so first-time users need the matching confirmation template.
-4. Request a new sign-in email from the league and check the copy and button. Previously delivered emails retain their old content. Other templates are sent only when their corresponding authentication action is triggered.
+4. In the project's email authentication settings, configure the OTP length as **8 digits**. This must agree with the frontend's `maxlength="8"` and `pattern="[0-9]{8}"` validation.
+5. Request a new sign-in email from the league and check that it contains a prominent eight-digit code and no authentication link or button. Previously delivered emails retain their old content. Other templates are sent only when their corresponding authentication action is triggered.
 
-Keep all placeholders exactly as written. Link templates use `{{ .ConfirmationURL }}` so Supabase can verify the intended action before redirecting to the app. A plain website URL cannot replace it. The email-change template also uses `{{ .Email }}` and `{{ .NewEmail }}` to identify the requested change, and allows for confirmation from both addresses when secure email change is enabled. Reauthentication uses `{{ .Token }}` as a visible verification code and has no action link. Its wording does not assume a particular code length or expiry setting.
+The **Magic Link** and **Confirm signup** templates used by this app must contain `{{ .Token }}` and must not contain `{{ .ConfirmationURL }}`. Supabase replaces the token placeholder with the eight-digit code that the player enters on the website. The other checked-in templates support separate, currently unused account flows: invitation, email-change and password-recovery templates intentionally retain `{{ .ConfirmationURL }}`, while reauthentication displays `{{ .Token }}`.
 
 The files contain no real login tokens, player details, email credentials, external images or tracking links.
 
@@ -28,7 +29,7 @@ These files are a saved copy of the template. Pushing them to GitHub or deployin
 
 ## Current app support
 
-The app currently uses email-link sign-in. These templates prepare the other email types; they do not add new account screens or send invitations.
+The app currently uses an eight-digit email OTP for sign-in. Numeric codes avoid a problem with corporate and university email security systems that inspect or pre-fetch one-time links and may consume a magic link before the player opens it. The other templates prepare separate email types; they do not add new account screens or send invitations.
 
 - **Invite user:** Supabase's invitation flow triggers this template. **Organiser → Add player** only adds the league roster entry and sends no email. After the self-registration upgrade, a verified recipient without a league entry can choose a league name and join as a player. Existing roster entries keep their name, picks and permissions.
 - **Change email address:** the app has no self-service email-change screen. League membership is matched by email, so the organiser must also update the existing player's roster email as part of a supported change flow, preserving their player ID and picks.

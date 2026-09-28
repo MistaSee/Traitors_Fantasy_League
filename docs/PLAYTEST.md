@@ -146,12 +146,12 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 ### Sign-in and membership
 
-- [ ] **AUTH-01 — First sign-in:** A and B each receive the themed email, return to the correct test-site URL and see their own name. Only A initially sees Organiser.
+- [ ] **AUTH-01 — First sign-in:** A and B each receive a themed email containing an eight-digit code and no authentication link. Enter each code on the correct test site; after reload, each account sees its own name. Only A initially sees Organiser.
 - [ ] **AUTH-02 — Returning sessions:** refresh and reopen the browser; saved picks persist. Sign out and sign back in as the other player; the new account sees its own selections.
-- [ ] **AUTH-03 — New player registration:** an address absent from the player list receives a sign-in link, verifies its email and sees **What shall we call you?**. A valid league name and **Join the league** open Standings with that name and no Organiser tab. Reload/sign in again: the same player and saved picks remain, with no duplicate entry. A Supabase account that verified before the migration can join too.
+- [ ] **AUTH-03 — New player registration:** an address absent from the player list receives an eight-digit sign-in code, verifies it and sees **What shall we call you?**. A valid league name and **Join the league** open Standings with that name and no Organiser tab. Reload/sign in again: the same player and saved picks remain, with no duplicate entry. A Supabase account that verified before the migration can join too.
 - [ ] **AUTH-03a — Registration failures:** an empty/whitespace-only name is refused. A failed network request preserves the entered name and allows retry. In a separate test installation without the self-registration migration, joining explains that registration setup is unfinished rather than exposing a raw missing-function error.
 - [ ] **AUTH-03b — Registration permissions:** unverified/anonymous users cannot register. New players cannot read player emails or other players’ open drafts, change scores or promote themselves. Pre-added players and existing organisers keep their names, picks and permissions. Joining after a deadline does not allow submissions for that locked round.
-- [ ] **AUTH-04 — Used or expired link:** in a signed-out browser, a used/expired link cannot create a fresh session. Requesting a new link restores access.
+- [ ] **AUTH-04 — Used, expired and resent codes:** in a signed-out browser, a used or expired code cannot create a fresh session. **Send another code** sends a replacement that restores access after the resend delay, and **Use another email** returns to the email form.
 - [ ] **AUTH-05 — Correct email identity:** the sender Gmail account can differ from the organiser/player address. Case differences in the same email do not create duplicate league players.
 
 ### Players and organiser access
@@ -263,12 +263,3 @@ On 14 September 2026, the full local unit/news/database suites passed. Browser c
 Automated checks cover fresh and upgraded seasons, cached demo preservation, migrated final predictions, timestamps, repeatability, permissions, score totals, stale revisions, locks and atomic rollback if conflicting final predictions exist.
 
 On 14 September 2026, 16 unit tests, six news tests and all five isolated database suites passed for the ten-episode update. Browser checks against an upgraded disposable database verified both menus through episode 10, the / 10 counter, a migrated final choice and its update after reload, copying episode 9’s roster into episode 10, saving an episode 10 squad/captain, and saving role-specific event counts in episode 10. Authentication was simulated and no live league data was changed.
-
-## Shield scoring correction (25 September 2026)
-
-- [ ] Scoring lists 46 rules. The organiser has two positive shield awards: **Receives or wins a shield** (+8) and **Shield blocks an attempted murder** (+10), with no separate activation field in either event counts or scoring values.
-- [ ] Record one of each for a celebrity: they earn **18**, or **36** as captain. Check episode 1 and a later episode. The failed-murder penalty for the Traitors remains **−5**.
-- [ ] Upgrade a test league with old shield event counts, including a locked episode. Only the retired bonus disappears from totals; other events, point values, names, picks, rosters and locks remain intact. Rerunning the migration makes no further change.
-- [ ] Reload a cached demo and export a league backup: neither retains the retired rule or its counts.
-
-On 25 September 2026, all 18 unit tests, six news tests and six database suites passed. A disposable browser demo containing old shield counts showed 46 rules, no retired inputs, 18 points for receiving/blocking a shield and 36 with captaincy. Correcting a count saved and survived reload. These checks do not apply the cleanup to the hosted Supabase database.

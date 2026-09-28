@@ -12,7 +12,7 @@ python3 scripts/serve.py --port 8765
 
 Open [the local preview](http://127.0.0.1:8765/). The server serves `web/` and refreshes the cached news in the background when it is due. It can update the working copy of `web/news.json`.
 
-With populated `web/config.js`, the preview connects to the configured Supabase project and therefore its real league data. To test real email sign-in locally, add the exact local URL to Supabase's allowed redirects as well as retaining the production URL.
+With populated `web/config.js`, the preview connects to the configured Supabase project and therefore its real league data. Real email sign-in sends an eight-digit OTP that is entered in the same browser page; it does not use `emailRedirectTo`. Keep the production Site URL configured and add the exact local URL to Supabase's allowed redirects if you also test other account flows locally.
 
 For a disposable demo, use a separate local copy of the project and set its `web/config.js` to:
 
@@ -53,7 +53,7 @@ The browser suite changes its demo data, submits picks, adds a player and tests 
 
 The test scripts also accept `PGLITE_MODULE` and `PLAYWRIGHT_MODULE` overrides for dependency import locations, and `CHROME_PATH` for an installed Chromium/Chrome executable.
 
-Hosted sign-in and email delivery require separate checks in the deployed site. Passing local checks does not verify SMTP credentials or Supabase redirect settings.
+Hosted sign-in and email delivery require separate checks in the deployed site. Passing local checks does not verify SMTP credentials, the hosted Magic Link and Confirm signup templates, or the project's eight-digit OTP setting.
 
 ## Data and changes
 
@@ -86,12 +86,6 @@ The profile save updates only its own UI and player data, preserving unsaved dra
 
 `web/seed.json` and `seed.sql` contain ten episodes. `web/season.mjs` supplies episode numbers and the final round from the installed state, so menus, final entries and progress counters work before and after a database upgrade. Cached nine-episode demos upgrade locally while preserving existing rounds and predictions.
 
-The ten-episode SQL migration appends one empty round and moves only `kind='final'` entries from 9 to 10, under the same configuration lock used for submissions. It preserves timestamps, existing locks and scores, increments the configuration revision once when extending, and rolls back if conflicting final entries would otherwise be overwritten. The submission RPC validates against the installed episode count; organiser saves must keep that count and consecutive numbering. Apply this migration after the older episode 1 migration when upgrading an older installation.
+The ten-episode SQL migration appends one empty round and moves only `kind='final'` entries from 9 to 10, under the same configuration lock used for submissions. It preserves timestamps, existing locks and scores, increments the configuration revision once when extending, and rolls back if conflicting final entries would otherwise be overwritten. The submission RPC validates against the installed episode count; organiser saves must keep that count and consecutive numbering. Apply this migration last when upgrading an older installation.
 
 `tests/season.test.mjs` checks seed parity, episode 10 scoring and cached demos. `tests/ten-episodes.database.mjs` rehearses nine-episode, already-locked and fresh ten-episode installations with the real SQL. It runs in the standard database suite.
-
-### Retired scoring events
-
-`web/scoring-rules.mjs` excludes the retired shield activation event from all displayed rules and points, even before an existing backend is migrated. It also removes that rule and its counts from cached demos and downloaded backups. Live state stays otherwise intact, so organiser saves remain compatible with a frozen season before the database upgrade.
-
-`migrations/20260925_retire_shield_activation.sql` cleans the stored rule and counts in one transaction, increments the revision only if data changes and installs a trigger to keep them out of future writes. Fresh installations have the same trigger. All other rules, custom point values, entries, player identities and locks are preserved. The new unit and database regressions cover existing counts, captain totals, repeatability, frozen seasons, stale saves and permissions.

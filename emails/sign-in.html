@@ -9,7 +9,7 @@
   </head>
   <body style="margin:0;padding:0;background-color:#0b100f;color:#e5e0d4;">
     <div style="display:none;font-size:1px;line-height:1px;color:#0b100f;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">
-      The candles are lit. Your private sign-in link awaits.
+      The candles are lit. Your eight-digit sign-in code awaits.
     </div>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#0b100f" style="width:100%;background-color:#0b100f;">
       <tr>
@@ -31,23 +31,17 @@
             <tr>
               <td style="padding:24px 28px 0;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:27px;color:#d5d7ca;">
                 <p style="margin:0;">The candles are lit. The whispers have begun. Your place at the Round Table awaits.</p>
-                <p style="margin:18px 0 0;">Use your private link below to sign in to the Celebrity Traitors fantasy league. Bring your suspicions.</p>
+                <p style="margin:18px 0 0;">Enter this eight-digit code on the Celebrity Traitors fantasy league website:</p>
               </td>
             </tr>
             <tr>
               <td style="padding:28px 28px 0;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                  <tr>
-                    <td align="center" bgcolor="#75423a" style="background-color:#75423a;border:1px solid #b3886a;mso-padding-alt:16px 24px;">
-                      <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:16px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:22px;font-weight:bold;color:#fff0d8;text-decoration:none;">Enter the castle</a>
-                    </td>
-                  </tr>
-                </table>
+                <div style="padding:18px 12px;background-color:#0b100f;border:1px solid #8b7951;text-align:center;font-family:'Courier New',Courier,monospace;font-size:28px;line-height:38px;letter-spacing:3px;color:#f0e6d1;">{{ .Token }}</div>
               </td>
             </tr>
             <tr>
               <td style="padding:24px 28px 32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;color:#aeb8a9;">
-                <p style="margin:0;">This link can be used once. If it has expired, request a new one from the league&rsquo;s sign-in page.</p>
+                <p style="margin:0;">This code can be used once. If it has expired, request a new one from the league&rsquo;s sign-in page.</p>
               </td>
             </tr>
             <tr>
