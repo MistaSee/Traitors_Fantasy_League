@@ -13,10 +13,12 @@ All templates use the same dark green, gold and burgundy design. Each HTML file 
 
 ## Apply in Supabase
 
-1. Open the project's **Authentication → Email Templates** settings.
+Deploy the website with code entry before changing the hosted templates. Refresh any already-open sign-in page. Existing link emails remain usable until they expire.
+
+1. Open the project's **Authentication → Emails** settings.
 2. Open each template listed above. Replace its subject with the matching subject and its HTML body with the full contents of the matching file, then save. Copy the HTML source from a code editor, not the text of a rendered browser preview.
 3. Use `sign-in.html` for both **Magic Link** and **Confirm signup**. The app's email sign-in also creates an account for a new player, so first-time users need the matching confirmation template.
-4. In the project's email authentication settings, configure the OTP length as **8 digits**. This must agree with the frontend's `maxlength="8"` and `pattern="[0-9]{8}"` validation.
+4. In the project's email authentication settings, configure the OTP length as **8 digits**. The website accepts 6–10 digits for compatibility; Supabase enforces the configured length. Keep the minimum email resend interval at **60 seconds**.
 5. Request a new sign-in email from the league and check that it contains a prominent eight-digit code and no authentication link or button. Previously delivered emails retain their old content. Other templates are sent only when their corresponding authentication action is triggered.
 
 The **Magic Link** and **Confirm signup** templates used by this app must contain `{{ .Token }}` and must not contain `{{ .ConfirmationURL }}`. Supabase replaces the token placeholder with the eight-digit code that the player enters on the website. The other checked-in templates support separate, currently unused account flows: invitation, email-change and password-recovery templates intentionally retain `{{ .ConfirmationURL }}`, while reauthentication displays `{{ .Token }}`.

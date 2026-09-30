@@ -71,7 +71,7 @@ Keep this project open in a browser tab for the next steps.
 2. Copy all of [seed.sql](seed.sql) into it.
 3. Click **Run**.
 
-This loads **21 celebrities, 47 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
+This loads **21 celebrities, 46 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
 
 To check the import, run this in a new query:
 
@@ -84,7 +84,7 @@ from public.league_config
 where id = 1;
 ```
 
-**Expected result:** one row containing `21`, `47` and `10`.
+**Expected result:** one row containing `21`, `46` and `10`.
 
 ### Add yourself as the first organiser
 
@@ -160,7 +160,7 @@ Cloudflare will deploy future commits to `main` automatically. [Cloudflare repos
 4. Under **Redirect URLs**, add the same complete URL and save.
 5. In Authentication's sign-in/provider settings, ensure **Email** and **Allow new users to sign up** are enabled. Keep email confirmation enabled.
 
-The two URLs should match the site you actually open. The OTP sign-in request does not supply `emailRedirectTo`: players enter the emailed code on the page they already have open. Keeping the canonical site and allowed redirect configured also supports Supabase's other account flows if you enable them later. [Supabase redirect guide](https://supabase.com/docs/guides/auth/redirect-urls)
+The two URLs should match the site you actually open. Players enter the emailed code on the page they already have open. The app retains `emailRedirectTo` so existing link emails still work during the transition; keep the canonical site and allowed redirect configured. [Supabase redirect guide](https://supabase.com/docs/guides/auth/redirect-urls)
 
 New players create their authentication account on their first sign-in. After verifying their email, they enter their name and click **Join the league**. This creates their player entry with ordinary player permissions. Anyone with the site address can join; player email addresses and organiser controls remain restricted to organisers, and open drafts stay private.
 
@@ -205,7 +205,7 @@ Resend Free currently includes **3,000 emails per month**, capped at **100 per d
 
 ## 8. Add the themed email templates
 
-In **Supabase → Authentication → Email Templates**, open the templates and use these subjects and HTML files:
+In **Supabase → Authentication → Emails**, open the templates and use these subjects and HTML files:
 
 | Supabase template | Subject | Copy this HTML file |
 |---|---|---|
@@ -216,9 +216,11 @@ In **Supabase → Authentication → Email Templates**, open the templates and u
 | Reset password | The Round Table: reset your password | [reset-password.html](emails/reset-password.html) |
 | Reauthentication | The Round Table: your verification code | [reauthentication.html](emails/reauthentication.html) |
 
+**For an existing installation, deploy the website with code entry before changing these hosted templates.** Already-open login pages should be refreshed.
+
 For the sign-in flow, replace the subject and full HTML body of both **Magic Link** and **Confirm signup** with [sign-in.html](emails/sign-in.html), then **Save**. That shared template displays `{{ .Token }}` and deliberately contains no `{{ .ConfirmationURL }}` or clickable authentication button. Returning and first-time players therefore receive the same themed OTP email without duplicating the HTML in this repository.
 
-In the project's email authentication settings, set the OTP length to **8 digits**. It must agree with the frontend's `maxlength="8"` and `pattern="[0-9]{8}"` validation; do not leave the project configured for six digits. Changes apply only to newly sent emails. A GitHub commit does not update these Supabase settings. [Supabase template guide](https://supabase.com/docs/guides/auth/auth-email-templates)
+In the project's email authentication settings, set the OTP length to **8 digits**. The app accepts 6–10 digits for compatibility, while Supabase enforces the configured length. Keep the email resend interval at 60 seconds to match the website countdown. Changes apply only to newly sent emails. A GitHub commit does not update these Supabase settings. [Supabase template guide](https://supabase.com/docs/guides/auth/auth-email-templates)
 
 The app uses numeric OTPs because corporate and university email security products can inspect or pre-fetch one-time links, consuming a magic link before the player uses it. The extra templates are ready for future account features; the app has no password-reset, email-change or reauthentication screens. See [email template notes](emails/README.md) before enabling those flows.
 
@@ -291,6 +293,20 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 | Email subject or HTML | Copy it into the matching Supabase email template and save. |
 | Scores, draft eligibility and player roles | Save through the Organiser controls. |
 
+### Scoring cleanup (25 September 2026)
+
+The league now has 46 scoring rules. Receiving a shield earns **+8** and blocking an attempted murder earns **+10**. These can total **18 points**, or **36 for the captain**. There is no separate activation bonus.
+
+The updated website applies this scoring to existing leagues immediately, including previously recorded events. To clean the stored Supabase rules and counts too:
+
+1. Copy the whole [scoring cleanup migration](migrations/20260925_retire_shield_activation.sql).
+2. Open your existing project in **Supabase → SQL Editor → New query**, paste it and click **Run**.
+3. Refresh any open league tabs before saving further changes.
+
+This removes only the retired rule and its counts. All other point values, events, players, picks, rosters and locks are preserved. It works after preseason locks, prevents old clients from restoring the retired event, and is safe to rerun. Any points previously awarded for that event no longer contribute to totals. Fresh installs already include the change; do not rerun the seed on an existing league.
+
+### Organiser accounts on older installations
+
 For organiser management on an older installation, run [migrations/20260907_organisers.sql](migrations/20260907_organisers.sql) in Supabase, then refresh the website. This migration can be rerun and preserves players, picks, scores and existing organiser roles. Fresh installs using the current `schema.sql` already include it.
 
 ### Extend the league to ten episodes
@@ -360,7 +376,7 @@ Plan details checked **7 September 2026**. This setup is designed for a small le
 | **Email address not authorized** | Custom SMTP has not been successfully configured. Complete step 7; the default sender is restricted to the Supabase project team. |
 | **Error sending confirmation email** | Check the SMTP host, port, username and app password. Use an app password rather than your normal Google password. Check Supabase's authentication logs for details. |
 | Email sends are rate-limited | Wait before retrying and check Authentication's Rate Limits and your sender's limits. Repeated requests can make the delay worse. |
-| The sign-in email contains a link or button instead of a code | Apply `emails/sign-in.html` to both Magic Link and Confirm signup under **Authentication → Email Templates**. Both must use `{{ .Token }}`, not `{{ .ConfirmationURL }}`. |
+| The sign-in email contains a link or button instead of a code | Apply `emails/sign-in.html` to both Magic Link and Confirm signup under **Authentication → Emails**. Both must use `{{ .Token }}`, not `{{ .ConfirmationURL }}`. |
 | The code is rejected or has expired | Confirm the Supabase OTP length is 8, request a fresh sign-in code and enter the newest code. Each code is single-use. |
 | **Your email is not on this league**, or **joining is not enabled yet** | Apply the self-registration migration above and refresh the latest website. Verified new players can then choose a name and join. For the first organiser, also check the organiser insert in step 3. |
 | No **Organiser** tab | Check the signed-in email is the organiser's email. If just promoted, refresh. |
