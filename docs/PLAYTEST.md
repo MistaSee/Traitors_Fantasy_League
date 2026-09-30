@@ -146,12 +146,13 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 
 ### Sign-in and membership
 
-- [ ] **AUTH-01 — First sign-in:** A and B each receive the themed email, return to the correct test-site URL and see their own name. Only A initially sees Organiser.
+- [ ] **AUTH-01 — First sign-in:** A and B each receive a themed email containing an eight-digit code and no authentication link. Enter each code on the correct test site; after reload, each account sees its own name. Only A initially sees Organiser.
 - [ ] **AUTH-02 — Returning sessions:** refresh and reopen the browser; saved picks persist. Sign out and sign back in as the other player; the new account sees its own selections.
-- [ ] **AUTH-03 — New player registration:** an address absent from the player list receives a sign-in link, verifies its email and sees **What shall we call you?**. A valid league name and **Join the league** open Standings with that name and no Organiser tab. Reload/sign in again: the same player and saved picks remain, with no duplicate entry. A Supabase account that verified before the migration can join too.
+- [ ] **AUTH-03 — New player registration:** an address absent from the player list receives an eight-digit sign-in code, verifies it and sees **What shall we call you?**. A valid league name and **Join the league** open Standings with that name and no Organiser tab. Reload/sign in again: the same player and saved picks remain, with no duplicate entry. A Supabase account that verified before the migration can join too.
 - [ ] **AUTH-03a — Registration failures:** an empty/whitespace-only name is refused. A failed network request preserves the entered name and allows retry. In a separate test installation without the self-registration migration, joining explains that registration setup is unfinished rather than exposing a raw missing-function error.
 - [ ] **AUTH-03b — Registration permissions:** unverified/anonymous users cannot register. New players cannot read player emails or other players’ open drafts, change scores or promote themselves. Pre-added players and existing organisers keep their names, picks and permissions. Joining after a deadline does not allow submissions for that locked round.
-- [ ] **AUTH-04 — Used or expired link:** in a signed-out browser, a used/expired link cannot create a fresh session. Requesting a new link restores access.
+- [ ] **AUTH-04 — Used, expired and resent codes:** in a signed-out browser, a used or expired code cannot create a fresh session. **Send another code** sends a replacement that restores access after the resend delay, and **Use another email** returns to the email form.
+- [ ] **AUTH-04a — Retry controls:** initial send and every resend disable resending for 60 seconds. Verification errors remain visible and allow retry. Pending requests disable all account-switching and resend controls. Reopening the page and choosing **I already have a code** allows entering an existing code without sending another email.
 - [ ] **AUTH-05 — Correct email identity:** the sender Gmail account can differ from the organiser/player address. Case differences in the same email do not create duplicate league players.
 
 ### Players and organiser access

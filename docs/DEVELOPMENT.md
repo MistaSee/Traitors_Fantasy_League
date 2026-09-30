@@ -12,7 +12,7 @@ python3 scripts/serve.py --port 8765
 
 Open [the local preview](http://127.0.0.1:8765/). The server serves `web/` and refreshes the cached news in the background when it is due. It can update the working copy of `web/news.json`.
 
-With populated `web/config.js`, the preview connects to the configured Supabase project and therefore its real league data. To test real email sign-in locally, add the exact local URL to Supabase's allowed redirects as well as retaining the production URL.
+With populated `web/config.js`, the preview connects to the configured Supabase project and therefore its real league data. Real email sign-in sends an eight-digit OTP that is entered in the same browser page; it retains `emailRedirectTo` so previously issued link emails still work during rollout. Keep the production Site URL configured and add the exact local URL to Supabase's allowed redirects if you also test other account flows locally.
 
 For a disposable demo, use a separate local copy of the project and set its `web/config.js` to:
 
@@ -53,7 +53,7 @@ The browser suite changes its demo data, submits picks, adds a player and tests 
 
 The test scripts also accept `PGLITE_MODULE` and `PLAYWRIGHT_MODULE` overrides for dependency import locations, and `CHROME_PATH` for an installed Chromium/Chrome executable.
 
-Hosted sign-in and email delivery require separate checks in the deployed site. Passing local checks does not verify SMTP credentials or Supabase redirect settings.
+Hosted sign-in and email delivery require separate checks in the deployed site. Passing local checks does not verify SMTP credentials, the hosted Magic Link and Confirm signup templates, or the project's eight-digit OTP setting.
 
 ## Data and changes
 
@@ -95,3 +95,9 @@ The ten-episode SQL migration appends one empty round and moves only `kind='fina
 `web/scoring-rules.mjs` excludes the retired shield activation event from all displayed rules and points, even before an existing backend is migrated. It also removes that rule and its counts from cached demos and downloaded backups. Live state stays otherwise intact, so organiser saves remain compatible with a frozen season before the database upgrade.
 
 `migrations/20260925_retire_shield_activation.sql` cleans the stored rule and counts in one transaction, increments the revision only if data changes and installs a trigger to keep them out of future writes. Fresh installations have the same trigger. All other rules, custom point values, entries, player identities and locks are preserved. The new unit and database regressions cover existing counts, captain totals, repeatability, frozen seasons, stale saves and permissions.
+
+### Email code sign-in
+
+`web/email-auth.mjs` serialises send and verify requests and keeps a per-address 60-second resend delay while the page remains open. Supabase still enforces rate limits, code expiry and identity. `web/email-auth-view.mjs` displays persistent errors, prevents switching accounts during requests and lets a player use **I already have a code** after reopening the site. Codes are never logged or saved by the app. The production email provider is configured for eight digits; the input accepts 6–10 digits and strips pasted whitespace for compatibility.
+
+`tests/email-auth.test.mjs` covers resend timing, request races, errors, pasted codes and missing sessions. For a browser rehearsal without sending emails or touching production, run `node tests/serve-auth-fixture.mjs` and open its printed URL. It uses a fake email service and the real app interface; enter `12345678` to sign in, `11111111` for an expired-code error, or any other numeric code for rejection. Use `returning@example.com` for an existing organiser or `new@example.com` for registration. The separate database suite tests the real SQL permissions and registration behaviour. Stop the fixture when finished.

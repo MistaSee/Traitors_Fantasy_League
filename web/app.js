@@ -4,6 +4,7 @@ import {validateDraft, score, characterPoints, episodeOneTeamSize, episodeScorin
 import {EditTracker, readForm, restoreForm, confirmDiscard} from './edits.mjs';
 import {castPhotos} from './cast-photos.mjs';
 import {needsRegistration, registrationError} from './registration.mjs';
+import {mountEmailAuth} from './email-auth-view.mjs';
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seed = await fetch('./seed.json').then(r=>r.json());
@@ -58,8 +59,7 @@ async function saveState(next,section){
  });
 }
 function login(){
- $('#app').innerHTML=`<section class="hero"><div class="eyebrow">Trust your instincts</div><h1>A seat at<br>the Round Table.</h1><p>Your celebrities. Your suspicions. One very competitive league.</p></section><section class="panel login"><h2>Enter the castle</h2><p class="muted">Enter your email to sign in or join the league. We’ll send you a private sign-in link. New players introduce themselves after verifying their email. You can name your team later in My picks; it’s optional.</p><form id="login"><label>Email address<input type="email" id="email" required autocomplete="email" placeholder="you@example.com"></label><button class="primary">Send sign-in link</button></form></section>`;
- bind('#login','submit',async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{const {error}=await api.auth.signInWithOtp({email:$('#email').value.trim(),options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;notice('Check your email for your sign-in link.');}finally{button.disabled=false;}});
+ mountEmailAuth($('#app'),api.auth,{redirectTo:location.origin+location.pathname,onVerified:()=>location.reload()});
 }
 async function useAnotherEmail(){
  await performSave(async()=>{
