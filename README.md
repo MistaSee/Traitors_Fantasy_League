@@ -285,7 +285,7 @@ Before the finale, collect final-side predictions: these close automatically at 
 Only weekly teams carry forward. A player's own saved team for a round always takes priority. Otherwise, at the deadline the database creates a team from their previous round, including through several missed rounds. Players do not need to visit the site or sign in for this to happen. My picks shows a preview before the deadline.
 
 - Retain active celebrities, within the new round's team size or role quotas.
-- Keep earlier selections first, dropping later selections when a quota shrinks. New submissions record selection order. Older entries without it retain names in alphabetical order from A onwards, dropping names at the end. **Carry-over priority** on My picks shows the order; remove and reselect someone to move them to the end, then save.
+- Keep earlier selections first, dropping later selections when a quota shrinks. Existing submissions store picks in the order they were selected, and new submissions also record explicit selection order. If that order is explicitly unknown or unusable, retain names in alphabetical order from A onwards, dropping names at the end. **Carry-over priority** on My picks shows the order; remove and reselect someone to move them to the end, then save.
 - Keep the captain if retained; otherwise the first retained pick becomes captain.
 - Do not invent replacements. Eliminations or role quotas may leave vacant places, which earn no points. Players can fill these and save a complete team before the deadline. Retained picks still score if the player takes no action.
 - A player with no previous weekly team receives no automatic first team. Preseason and final predictions never carry over.

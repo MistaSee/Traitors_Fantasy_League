@@ -21,7 +21,7 @@ declare ep jsonb := s->'episodes'->(episode_number-1); ordered jsonb; kept jsonb
 begin
  if previous_payload is null then return null; end if;
  neutral := episode_number=1 or coalesce((ep->>'roleNeutral')::boolean,false);
- ordered := previous_payload->'selectionOrder';
+ ordered := case when previous_payload ? 'selectionOrder' then previous_payload->'selectionOrder' else previous_payload->'picks' end;
  if jsonb_typeof(ordered) is distinct from 'array' then ordered := null;
  elsif jsonb_array_length(ordered)<>jsonb_array_length(previous_payload->'picks')
    or (select count(distinct value) from jsonb_array_elements_text(ordered))<>jsonb_array_length(ordered)
