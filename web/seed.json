@@ -505,7 +505,9 @@
       "locked": false,
       "roster": {},
       "counts": {},
-      "teamSize": 8
+      "teamSize": 8,
+      "deadline": "2026-10-01T19:00:00Z",
+      "roleNeutral": true
     },
     {
       "number": 2,
@@ -513,7 +515,10 @@
       "faithful": 6,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-02T19:00:00Z",
+      "roleNeutral": true,
+      "teamSize": 8
     },
     {
       "number": 3,
@@ -521,7 +526,8 @@
       "faithful": 6,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-08T19:00:00Z"
     },
     {
       "number": 4,
@@ -529,7 +535,8 @@
       "faithful": 6,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-09T19:00:00Z"
     },
     {
       "number": 5,
@@ -537,7 +544,8 @@
       "faithful": 6,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-15T19:00:00Z"
     },
     {
       "number": 6,
@@ -545,7 +553,8 @@
       "faithful": 6,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-16T19:00:00Z"
     },
     {
       "number": 7,
@@ -553,7 +562,8 @@
       "faithful": 3,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-22T19:00:00Z"
     },
     {
       "number": 8,
@@ -561,7 +571,8 @@
       "faithful": 3,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-23T19:00:00Z"
     },
     {
       "number": 9,
@@ -569,7 +580,8 @@
       "faithful": 3,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-29T20:00:00Z"
     },
     {
       "number": 10,
@@ -577,10 +589,12 @@
       "faithful": 3,
       "locked": false,
       "roster": {},
-      "counts": {}
+      "counts": {},
+      "deadline": "2026-10-30T20:00:00Z"
     }
   ],
   "preseasonLocked": false,
   "finalLocked": false,
-  "winner": ""
+  "winner": "",
+  "broadcastScheduleVersion": 1
 }

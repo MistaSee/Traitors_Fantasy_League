@@ -1,3 +1,4 @@
+import {legacySeason} from './legacy-season.mjs';
 const {PGlite}=await import(process.env.PGLITE_MODULE||'@electric-sql/pglite');
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -10,7 +11,7 @@ for(const {count,finalLocked} of [{count:9,finalLocked:false},{count:9,finalLock
  create function auth.jwt() returns jsonb language sql as $$select current_setting('test.jwt',true)::jsonb$$;
  create function auth.uid() returns uuid language sql as $$select (auth.jwt()->>'sub')::uuid$$;`);
  await db.exec(schema);
- const seed=JSON.parse(readFile('web/seed.json'));seed.episodes=seed.episodes.slice(0,count);seed.finalLocked=finalLocked;seed.winner='Faithful';
+ const seed=legacySeason();seed.episodes=seed.episodes.slice(0,count);seed.finalLocked=finalLocked;seed.winner='Faithful';
  const picks=['4','5','6','7'];picks.forEach((id,i)=>seed.episodes[8].roster[id]={role:i?'Faithful':'Traitor',status:'Active'});
  seed.episodes[8].locked=true;seed.episodes[8].counts={'4':{TRAITOR_BANISHED:1},'5':{SHIELD_RECEIVED:1}};
  await db.query('insert into public.league_config values(1,$1,7)',[seed]);

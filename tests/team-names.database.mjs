@@ -1,9 +1,10 @@
+import {legacySeason} from './legacy-season.mjs';
 const {PGlite}=await import(process.env.PGLITE_MODULE || '@electric-sql/pglite');
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const schema=readFileSync(new URL('../schema.sql',import.meta.url),'utf8');
 const migration=readFileSync(new URL('../migrations/20260914_team_names.sql',import.meta.url),'utf8');
-const seed=JSON.parse(readFileSync(new URL('../web/seed.json',import.meta.url)));
+const seed=legacySeason();
 const db=new PGlite();
 await db.exec(`create role anon; create role authenticated; create schema auth;
 create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);

@@ -1,3 +1,21 @@
+# Broadcast and carry-over checks (2 October 2026)
+
+Use an isolated test league for scoring exercises. Production deadlines close automatically at the BBC broadcast time. For rehearsals after those dates, set **future deadlines in the test database only** before beginning. Do not change live deadlines for testing.
+
+- [ ] My picks defaults to the next open episode. The banner shows the UK broadcast date, countdown and open/closed state. Episodes 9 and 10 show 20:00 GMT.
+- [ ] Episode 2 accepts eight eligible celebrities with Unknown roles, plus a captain. Role-specific event counts do not score; Any-role positive and negative captain points double.
+- [ ] Preseason predictions are immutable after episode 1's deadline. Recording two original Traitors leaves their score pending; recording the third awards the correct +5-per-hit and +5 clean-sweep bonus.
+- [ ] Leave a draft page open across its deadline. Its save control becomes disabled without clearing unsaved selections. A direct/stale submission is also rejected by the database.
+- [ ] Do not submit for the next episode. On the next league read after the deadline, the old team carries forward without that player logging in. Check several consecutive missed rounds.
+- [ ] Submit a different team for the new episode. Automatic carry-over must never overwrite it.
+- [ ] Reduce the next round's quota. The most recently selected surplus players drop first within each role. Older teams without recorded order retain names A–Z.
+- [ ] Remove the old captain from eligibility. The first retained pick becomes captain. Vacancies remain empty and score zero; the system invents no replacement.
+- [ ] Before the deadline, fill vacancies in a carried preview and save. Rename the team while picks are unsaved: the selections and captain must survive.
+- [ ] Other players' open picks stay private. Organisers see only review metadata until a round closes. Review flags never delete entries or disqualify scores.
+- [ ] Closing episode 10 also closes final-side predictions at 20:00 GMT. New updates must leave existing sign-in sessions valid.
+
+The arithmetic exercise below uses episode 3 for full role scoring. Run it in a disposable league with future test deadlines and no earlier weekly entries, so automatic carry-over does not add unrelated points.
+
 # Scoring walkthrough and pre-launch playtest
 
 Use this guide to practise an episode and check the league before inviting players. Record a pass or failure against each item; unchecked items have not been verified.
@@ -5,7 +23,7 @@ Use this guide to practise an episode and check the league before inviting playe
 ## How an organiser scores an episode
 
 1. Open **Organiser → Episode setup & scoring** and choose the episode.
-2. Before players draft, set that episode's **active cast and team requirements**, then click **Save episode setup**. Episode 1 uses any eight eligible celebrities by default, with no roles required. Episode 2 copies starting roles from Season controls; later episodes copy the previous roster. The roster describes the cast **before** the episode starts.
+2. Before players draft, set that episode's **active cast and team requirements**, then click **Save episode setup**. Episode 1 uses any eight eligible celebrities by default, with no roles required. Episodes 1 and 2 use any eight eligible celebrities and only Any-role scoring. Episode 3 copies starting roles from Season controls; later episodes copy the previous roster. The roster describes the cast **before** the episode starts.
 3. Before broadcast, tick **Lock episode N drafts** and save. Confirm the lock. Players can no longer change that episode's picks, and the roster and slot counts become fixed.
 4. After watching, choose a celebrity in **Score a celebrity**. Enter how many times each scoring event happened to them in this episode.
 5. Click **Save event counts** before selecting another celebrity. Repeat for the cast members who earned points or penalties.
@@ -45,7 +63,7 @@ The previously identified failures have been addressed:
 
 - **Unsaved edits:** changing tab, pick type, episode or scored celebrity now prompts before discarding affected edits. **Keep editing** (or Escape) preserves the original selection and values. Saving one organiser section retains unsaved edits in the other sections; those sections still need their own save. Sign-out and the home link are guarded, and browser reload/close requests a native warning while edits or a save are pending. Browser warnings cannot protect against a device crash or forced browser termination.
 - **Scoring selection:** saving event counts keeps the same celebrity and episode selected. Switching celebrity discards only that celebrity's unsaved counts after confirmation; it preserves edits elsewhere on the organiser page.
-- **Episode context:** the episode selector and heading refer to the same episode. After the episode 1 upgrade, episode 1 is a valid team draft; installations awaiting that upgrade continue to start at episode 2.
+- **Episode context:** the episode selector and heading refer to the same episode. After the episode 1 upgrade, episode 1 is a valid team draft; installations awaiting that upgrade continue to start at episode 3.
 
 A save temporarily prevents further editing and navigation. If it fails, the form remains available with its edits. When several organiser sections have changes, save scoring values before locking preseason; the app will remind you because that lock freezes the values.
 
@@ -65,19 +83,19 @@ Record the app commit, browser/device and date of each test. Use the default sco
 
 ## Rehearse episode 1
 
-Use a separate fresh test league for this exercise so its points do not alter the episode 2 arithmetic below. Existing installations must first run [the episode 1 migration](../migrations/20260907_episode_one.sql).
+Use a separate fresh test league for this exercise so its points do not alter the episode 3 arithmetic below. Existing installations must first run [the episode 1 migration](../migrations/20260907_episode_one.sql).
 
 1. Leave all roles Unknown. As a normal player, choose **Pick episode 1 team**. Select Amol Rajan, Bella Ramsey, James Acaster, James Blunt, Jerry Hall, Joanne McNally, Joe Lycett and Julie Hesmondhalgh. Choose **Amol** as captain and save.
 2. Verify that seven/nine selections, a missing captain and a duplicate/unknown celebrity are refused. Save a separate set of three preseason predictions and confirm both entries survive refresh.
 3. As organiser, choose episode 1. Only Any-role count fields should appear. Enter **Amol: three confessionals, two votes received and one shield**; save. Enter **Bella: one successful group mission participation**; save. Leave all other counts zero.
 4. Before episode 1 locks, the Weekly score is **0**. Lock episode 1: Amol contributes `9 × 2 = 18`, Bella contributes `2`, so the Weekly score is **20**. Preseason remains separately open until its own lock is set.
 5. Correct Amol’s votes received from 2 to 3: Weekly becomes **18**. Save those same counts again: it stays **18**. Traitor/Faithful-specific counts in older data must contribute nothing to episode 1.
-6. Try editing a locked team, its size or eligibility: these changes must fail. Counts must remain correctable. Record starting roles in Season controls, select episode 2 and copy them: the known roles should appear there while episode 1 remains locked and its score unchanged.
+6. Try editing a locked team, its size or eligibility: these changes must fail. Counts must remain correctable. Record starting roles in Season controls, select episode 3 and copy them: the known roles should appear there while episode 1 remains locked and its score unchanged.
 7. Check both locks before real broadcast: **Lock preseason predictions** and **Lock episode 1 drafts**. One does not automatically lock the other.
 
 ## A complete miniature episode
 
-This episode 2–finale fixture assumes no episode 1 team points. Start fresh after the separate episode 1 rehearsal.
+This episode 3–finale fixture assumes no episode 1 team points. Start fresh after the separate episode 1 rehearsal.
 
 All roles and events here are fictional test data, not predictions or programme results. Start with all event counts at zero.
 
@@ -89,9 +107,9 @@ All roles and events here are fictional test data, not predictions or programme 
 - As organiser, lock preseason predictions. Set the starting roles of Amol, Bella and James Acaster to **Traitor**, and everyone else to **Faithful**. Save.
 - Refresh both players: A should have **20** preseason points and B **10**.
 
-### 2. Set up episode 2 and draft teams
+### 2. Set up episode 3 and draft teams
 
-Select episode 2, choose **Copy starting roles** and save. Leave the default **2 Traitor + 6 Faithful** slots and keep the episode unlocked.
+Select episode 3, choose **Copy starting roles** and save. Leave the default **2 Traitor + 6 Faithful** slots and keep the episode unlocked.
 
 Both players select the following eight celebrities:
 
@@ -108,7 +126,7 @@ A chooses **Amol** as captain. B chooses **Bella**. Save both teams, refresh, an
 
 ### 3. Enter the test events
 
-In episode 2, enter and save these counts. Leave every other count at zero, including survival and zero-vote bonuses.
+In episode 3, enter and save these counts. Leave every other count at zero, including survival and zero-vote bonuses.
 
 | Celebrity | Event | Count | Result |
 |---|---|---:|---:|
@@ -121,16 +139,16 @@ In episode 2, enter and save these counts. Leave every other count at zero, incl
 
 Amol's total is **9**, Bella's **−10** and James Blunt's **8**. All other selected celebrities score zero. The shared team total before captaincy is **7**.
 
-This rehearsal deliberately records counts while episode 2 is still unlocked to test visibility. The leaderboard's weekly points should remain **0** until you lock it. In real play, lock drafts before broadcast.
+This rehearsal deliberately records counts while episode 3 is still unlocked to test visibility. The leaderboard's weekly points should remain **0** until you lock it. In real play, lock drafts before broadcast.
 
 ### 4. Lock and check the arithmetic
 
-Lock episode 2, save, and refresh both players:
+Lock episode 3, save, and refresh both players:
 
 | Checkpoint | A preseason | A weekly | A total | B preseason | B weekly | B total |
 |---|---:|---:|---:|---:|---:|---:|
-| Episode 2 still open | 20 | 0 | **20** | 10 | 0 | **10** |
-| Episode 2 locked | 20 | 16 | **36** | 10 | −3 | **7** |
+| Episode 3 still open | 20 | 0 | **20** | 10 | 0 | **10** |
+| Episode 3 locked | 20 | 16 | **36** | 10 | −3 | **7** |
 | Amol's votes received corrected from 2 to 3 | 20 | 14 | **34** | 10 | −4 | **6** |
 | Same corrected counts saved again | 20 | 14 | **34** | 10 | −4 | **6** |
 
@@ -138,7 +156,7 @@ A's original weekly score is `7 + 9 = 16`; B's is `7 − 10 = −3`. The extra c
 
 ### 5. Check history and the final
 
-Copy episode 2's roster into episode 3. Mark Bella **Banished** and change James Blunt's episode-3 role to **Traitor**, then save. Do not change starting roles. A's total must remain **34**, and B's **6**: episode 2 and preseason are unchanged by later events.
+Copy episode 3's roster into episode 4. Mark Bella **Banished** and change James Blunt's episode-4 role to **Traitor**, then save. Do not change starting roles. A's total must remain **34**, and B's **6**: episode 3 and preseason are unchanged by later events.
 
 Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final predictions are locked and a winner is recorded, neither gets a final bonus. Lock final predictions, set the winner to Faithful and save: A should finish on **59**, and B on **6**. If you correct the winner to Traitors, the totals should become **34** and **31** respectively.
 
@@ -172,8 +190,8 @@ Submit **Faithful** as A's final prediction and **Traitors** as B's. Until final
 - [ ] **DRAFT-05 — Shared teams:** A and B can select the same celebrities. One player's submission does not change the other's team.
 - [ ] **DRAFT-06 — Eligibility:** Unknown-role and inactive celebrities cannot be newly selected for a weekly team. The same person remains available for preseason predictions regardless of later episode status.
 - [ ] **DRAFT-07 — Smaller teams:** in another open test episode, set 1 Traitor + 3 Faithful before submissions. A valid four-person team saves. Ensure each required role has enough active celebrities available.
-- [ ] **DRAFT-08 — Missing submission:** a player who does not submit gets zero for that round, with no automatic team or catch-up bonus.
-- [ ] **DRAFT-09 — Episode 1:** complete the episode 1 rehearsal above, including exact 20/18 totals, separate preseason entries, role-neutral-only counts and unchanged episode 2 role quotas.
+- [ ] **DRAFT-08 — Missing submission:** a player with a previous weekly team gets automatic carry-over. Eliminated and surplus picks drop out; vacant places score zero. A player without any previous weekly team gets no automatic first team.
+- [ ] **DRAFT-09 — Episode 1:** complete the episode 1 rehearsal above, including exact 20/18 totals, separate preseason entries, role-neutral-only counts and episode 2 also uses eight celebrities and neutral scoring; role quotas start at episode 3.
 
 ### Episode setup and locks
 

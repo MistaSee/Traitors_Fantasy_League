@@ -264,25 +264,65 @@ The news feed updates headlines only. **Organisers enter starting roles, recruit
 1. Agree scoring values under **Organiser → Scoring values**.
 2. Add players and collect their three preseason Traitor predictions. Players choose **Make preseason picks** on Standings, or open **My picks**, which defaults to preseason while predictions are open. They select exactly three celebrities and click **Save picks**; no roles, roster setup or captain are required.
 3. Collect a **separate episode 1 team** using **Pick episode 1 team** on Standings (or **My picks → Episode team → Episode 1**). The default is **any eight eligible celebrities plus a captain**, with no role quotas. Organisers can change **Episode 1 team size** before teams are submitted.
-4. Before the first broadcast, lock **both** preseason predictions in Season controls and episode 1 drafts in Episode setup & scoring. These are independent locks. The preseason lock also freezes scoring values for the season.
-5. After the reveal, record the original roles under **Season controls → Record starting roles after episode 1** and save. Do not change episode 1’s frozen roster.
+4. Preseason predictions and episode 1 teams close automatically at the first BBC broadcast deadline. The organiser can close either earlier. The preseason lock also freezes scoring values for the season.
+5. After the reveal, record the original roles under **Season controls → Record the original roles after the full reveal** and save. Do not change episode 1’s frozen roster.
 
-Episode 1 scores only rules labelled **Any role**: shields, missions, confessionals, role-neutral voting events and other universal bonuses/penalties. Captaincy doubles these points, including penalties. Traitor- and Faithful-specific counts do not contribute to episode 1, even if older data contains them. These team points appear in the leaderboard’s Weekly column; the three original-Traitor predictions keep their separate Preseason score.
+Episodes 1 and 2 score only rules labelled **Any role**: shields, missions, confessionals, role-neutral voting events and other universal bonuses/penalties. Captaincy doubles these points, including penalties. Traitor- and Faithful-specific counts do not contribute to either opening round, even if older data contains them. These team points appear in the leaderboard’s Weekly column; the three original-Traitor predictions keep their separate Preseason score. Their points are awarded once exactly three original Traitors have been recorded; the incomplete episode 1 reveal does not settle those predictions.
 
 ### Each episode
 
-1. For episode 1, check the team size and eligible cast before collecting picks. No role setup is required.
-2. For episode 2, choose **Copy starting roles**, update anyone eliminated during episode 1, and save. For episodes 3–10, copy the previous episode's roster, update roles and eliminations, and save. These describe who is active **before** that episode. A celebrity eliminated during episode 2 should become unavailable in episode 3's roster.
-3. Check the draft slot counts. Defaults are 2 Traitors + 6 Faithful for episodes 2–6, then 1 + 3 for episodes 7–10. Adjust before players submit if the available cast requires it.
-4. Players choose a fresh team and a captain. Celebrities can appear on multiple players' teams. The captain doubles positive and negative points.
-5. Manually lock that episode's drafts before broadcast. Its roster and draft requirements then become fixed.
-6. Record each celebrity's event counts and save. Counts remain editable for corrections. Players can use **Refresh scores** to retrieve the latest totals.
+1. For episodes 1 and 2, check the eligible cast before collecting picks. Players choose any eight eligible celebrities and a captain. Unknown roles are allowed; only Any-role events score.
+2. Before episode 3, choose **Copy starting roles**, update anyone eliminated and save. For episodes 4–10, copy the previous episode's roster, update recruitment and eliminations, and save **before the deadline**. Rosters describe who is active before the episode. Leave unresolved roles as Unknown until the reveal.
+3. Check the draft quotas. Defaults are 2 Traitors + 6 Faithful for episodes 3–6, then 1 + 3 for episodes 7–10. Adjust before teams are submitted if the remaining cast requires it.
+4. Players can change their team and captain before each broadcast. Celebrities can appear on multiple teams. Captaincy doubles positive and negative points. If a player does nothing, their previous team carries over automatically.
+5. Drafts close automatically at **20:00 UK time** on the published broadcast date. You can lock a round earlier. Its roster and requirements then become fixed; event counts remain editable.
+6. Record each celebrity's event counts and save. Check **Entries to review** for late legacy submissions or carried teams with unfilled places. Players can use **Refresh scores** to retrieve the latest totals.
 
-Before the finale, collect and lock final-side predictions. After the result, record **Faithful** or **Traitors** as the winner. A correct final prediction earns 25 points.
+Before the finale, collect final-side predictions: these close automatically at the episode 10 deadline. After the result, record **Faithful** or **Traitors** as the winner. A correct final prediction earns 25 points.
 
-There are no automatic broadcast deadlines, fallback teams or catch-up points. Missing submissions score zero. Take a **Download league backup** after major updates and keep the JSON file private; restoring a backup currently requires a database operation.
+### Automatic team carry-over
+
+Only weekly teams carry forward. A player's own saved team for a round always takes priority. Otherwise, at the deadline the database creates a team from their previous round, including through several missed rounds. Players do not need to visit the site or sign in for this to happen. My picks shows a preview before the deadline.
+
+- Retain active celebrities, within the new round's team size or role quotas.
+- Keep earlier selections first, dropping later selections when a quota shrinks. New submissions record selection order. Older entries without it retain names in alphabetical order from A onwards, dropping names at the end. **Carry-over priority** on My picks shows the order; remove and reselect someone to move them to the end, then save.
+- Keep the captain if retained; otherwise the first retained pick becomes captain.
+- Do not invent replacements. Eliminations or role quotas may leave vacant places, which earn no points. Players can fill these and save a complete team before the deadline. Retained picks still score if the player takes no action.
+- A player with no previous weekly team receives no automatic first team. Preseason and final predictions never carry over.
+
+Existing entries are never rewritten or removed. Review flags do not disqualify entries or alter scores. A legacy entry's last-save time does not reveal what any previous version contained. Take a **Download league backup** after major updates and keep the JSON file private; restoring a backup requires a database operation.
+
+### BBC One broadcast schedule
+
+All deadlines are **20:00 Europe/London**, including the change from BST to GMT. The premiere on 1 October was one extended main episode; *Uncloaked* and *Traitor or Faithful? Claudia Decides* are extras and do not create fantasy rounds. [BBC announcement](https://www.bbc.co.uk/mediacentre/2026/the-celebrity-traitors-series-2-air-date-trailer), [BBC episode 1](https://www.bbc.co.uk/programmes/m0030pxt), [full schedule](https://www.radiotimes.com/tv/entertainment/reality-tv/celebrity-traitors-season-2-release-schedule/).
+
+| Episode | Date (2026) | UK deadline |
+|---|---|---|
+| 1 | Thursday 1 October | 20:00 BST |
+| 2 | Friday 2 October | 20:00 BST |
+| 3 | Thursday 8 October | 20:00 BST |
+| 4 | Friday 9 October | 20:00 BST |
+| 5 | Thursday 15 October | 20:00 BST |
+| 6 | Friday 16 October | 20:00 BST |
+| 7 | Thursday 22 October | 20:00 BST |
+| 8 | Friday 23 October | 20:00 BST |
+| 9 | Thursday 29 October | 20:00 GMT |
+| 10 | Friday 30 October | 20:00 GMT |
+
+The database enforces deadlines using its own clock, even for stale browser pages. Locks and carried teams are materialised on the next league read or organiser save; no paid scheduler is needed. The roster must be prepared before the deadline even when nobody opens the site at broadcast time. If the BBC reschedules a broadcast, update the future deadline through a reviewed database change; closed rounds cannot be reopened from the app.
 
 ## Updating an existing installation
+
+### Broadcast deadlines, episode 2 and carry-over (2 October 2026)
+
+1. Deploy the latest website from `main` through Cloudflare.
+2. In **Supabase → SQL Editor → New query**, run the whole [broadcast schedule upgrade](migrations/20261002_broadcast_schedule.sql), **after all older migrations**. It requires the existing ten-episode league.
+3. Refresh the site. Check the next broadcast banner, episode 2's any-eight format and **Organiser → Entries to review**.
+
+Existing sessions remain valid: nobody needs to sign out, register again or request another email. Players only need to refresh to see the new controls. Players who leave their teams untouched get automatic carry-over.
+
+The transactional upgrade is safe to rerun. It preserves existing players, entries, event counts and manual locks, and flags late/incompatible historical entries without deleting them. New installations already include the functions and schedule in `schema.sql` and `seed.sql`. Do not reapply an older migration afterwards, because historical files replace some of the same functions.
+
 
 Website changes committed to `main` deploy through Cloudflare. Database changes and email-template changes are separate:
 

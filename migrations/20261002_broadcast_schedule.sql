@@ -1,43 +1,6 @@
--- Run once in the Supabase SQL editor. All application access is through RPCs.
-create table public.league_config (id integer primary key check(id=1), state jsonb not null, revision integer not null default 0);
-create table public.league_players (id uuid primary key default gen_random_uuid(), email text unique not null check(email=lower(email)), name text not null, team_name text check(team_name is null or (team_name=btrim(team_name) and char_length(team_name) between 1 and 80)), is_admin boolean not null default false);
-create table public.league_entries (player_id uuid references public.league_players(id), kind text check(kind in ('weekly','preseason','final')), episode integer not null, payload jsonb not null, updated_at timestamptz not null default now(), primary key(player_id,kind,episode));
-alter table public.league_config enable row level security;
-alter table public.league_players enable row level security;
-alter table public.league_entries enable row level security;
-revoke all on public.league_config, public.league_players, public.league_entries from anon, authenticated;
+-- Run after all older upgrades. Preserves entries, identities, counts and manual locks.
+begin;
 
--- Remove only the retired scoring event, preserving all other league settings.
-create or replace function public.without_retired_scoring(s jsonb) returns jsonb
-language plpgsql immutable set search_path = '' as $$
-declare ep record; celebrity record;
-begin
- s := jsonb_set(s, '{rules}', (select coalesce(jsonb_agg(value order by position),'[]'::jsonb)
-   from jsonb_array_elements(s->'rules') with ordinality as rules(value,position)
-   where value->>'id' is distinct from 'SHIELD_USED'));
- for ep in select value, position from jsonb_array_elements(s->'episodes') with ordinality as rounds(value,position) loop
-   for celebrity in select key, value from jsonb_each(ep.value->'counts') loop
-     if celebrity.value ? 'SHIELD_USED' then
-       s := jsonb_set(s, array['episodes',(ep.position-1)::text,'counts',celebrity.key], celebrity.value - 'SHIELD_USED');
-     end if;
-   end loop;
- end loop;
- return s;
-end $$;
-revoke all on function public.without_retired_scoring(jsonb) from public, anon, authenticated;
-
-create or replace function public.remove_retired_scoring_on_write() returns trigger
-language plpgsql set search_path = '' as $$
-begin
- new.state := public.without_retired_scoring(new.state);
- return new;
-end $$;
-revoke all on function public.remove_retired_scoring_on_write() from public, anon, authenticated;
-
-create trigger remove_retired_scoring_on_write before insert or update of state on public.league_config
-for each row execute function public.remove_retired_scoring_on_write();
-
--- Deadlines are evaluated after acquiring the configuration lock. No scheduler is needed.
 create or replace function public.with_broadcast_locks(s jsonb, at_time timestamptz) returns jsonb
 language plpgsql immutable set search_path = '' as $$
 declare ep record;
@@ -51,9 +14,7 @@ begin
  if nullif(s->'episodes'->(jsonb_array_length(s->'episodes')-1)->>'deadline','')::timestamptz <= at_time then s := jsonb_set(s,'{finalLocked}','true'); end if;
  return s;
 end $$;
-revoke all on function public.with_broadcast_locks(jsonb,timestamptz) from public, anon, authenticated;
 
--- Retain earliest selections within each new quota. Legacy teams use name A–Z.
 create or replace function public.carried_team(s jsonb, episode_number integer, previous_payload jsonb, previous_episode integer) returns jsonb
 language plpgsql immutable set search_path = '' as $$
 declare ep jsonb := s->'episodes'->(episode_number-1); ordered jsonb; kept jsonb := '[]'; pick text; role_name text; t integer := 0; f integer := 0; neutral boolean; captain text;
@@ -82,7 +43,6 @@ begin
  captain := case when kept ? (previous_payload->>'captain') then previous_payload->>'captain' else kept->>0 end;
  return jsonb_build_object('picks',kept,'captain',captain,'selectionOrder',kept,'autoCarried',true,'carriedFrom',previous_episode);
 end $$;
-revoke all on function public.carried_team(jsonb,integer,jsonb,integer) from public, anon, authenticated;
 
 create or replace function public.carry_locked_teams(s jsonb) returns void
 language plpgsql security definer set search_path = '' as $$
@@ -100,7 +60,6 @@ begin
    end if;
  end loop;
 end $$;
-revoke all on function public.carry_locked_teams(jsonb) from public, anon, authenticated;
 
 create or replace function public.lock_due_rounds() returns void
 language plpgsql security definer set search_path = '' as $$
@@ -114,9 +73,7 @@ begin
  end if;
  perform public.carry_locked_teams(locked_state);
 end $$;
-revoke all on function public.lock_due_rounds() from public, anon, authenticated;
 
--- Review metadata only: no other player's open picks are disclosed here.
 create or replace function public.draft_review(s jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare e record; ep jsonb; cutoff timestamptz; issues text[]; result jsonb := '[]'; n integer; valid integer; t integer; f integer;
@@ -139,9 +96,8 @@ begin
  end loop;
  return result;
 end $$;
-revoke all on function public.draft_review(jsonb) from public, anon, authenticated;
 
-create function public.read_league() returns jsonb language plpgsql security definer set search_path = '' as $$
+create or replace function public.read_league() returns jsonb language plpgsql security definer set search_path = '' as $$
 declare me public.league_players; cfg public.league_config; result jsonb;
 begin
  select * into me from public.league_players where email=lower(auth.jwt()->>'email') and auth.uid() is not null;
@@ -160,28 +116,7 @@ begin
  return result;
 end $$;
 
--- Naming is optional. Assign defaults when episode 1 locks; never touch picks.
-create or replace function public.assign_default_team_names() returns void
-language plpgsql security definer set search_path = '' as $$
-begin
- if exists(select 1 from public.league_config where id=1 and (state->'episodes'->0->>'locked')::boolean) then
-   update public.league_players set team_name=left(name,63)||'’s Secret Society' where team_name is null;
- end if;
-end $$;
-revoke all on function public.assign_default_team_names() from public, anon, authenticated;
-
-create or replace function public.team_names_on_lock() returns trigger
-language plpgsql security definer set search_path = '' as $$
-begin
- perform public.assign_default_team_names();
- return new;
-end $$;
-revoke all on function public.team_names_on_lock() from public, anon, authenticated;
-drop trigger if exists team_names_on_lock on public.league_config;
-create trigger team_names_on_lock after insert or update of state on public.league_config
-for each row execute function public.team_names_on_lock();
-
-create function public.save_entry(entry_kind text, episode_number integer, entry_payload jsonb) returns void language plpgsql security definer set search_path = '' as $$
+create or replace function public.save_entry(entry_kind text, episode_number integer, entry_payload jsonb) returns void language plpgsql security definer set search_path = '' as $$
 declare me uuid; s jsonb; ep jsonb; picks jsonb; n integer; t integer; f integer; valid integer;
 begin
  select id into me from public.league_players where email=lower(auth.jwt()->>'email') and auth.uid() is not null;
@@ -229,7 +164,7 @@ begin
  on conflict(player_id,kind,episode) do update set payload=excluded.payload,updated_at=excluded.updated_at;
 end $$;
 
-create function public.save_league(new_state jsonb, expected_revision integer) returns void language plpgsql security definer set search_path = '' as $$
+create or replace function public.save_league(new_state jsonb, expected_revision integer) returns void language plpgsql security definer set search_path = '' as $$
 declare old public.league_config; ep jsonb; e public.league_entries; p text; t integer; f integer; c jsonb; count_value jsonb;
 begin
  if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
@@ -291,85 +226,36 @@ begin
  perform public.carry_locked_teams(new_state);
 end $$;
 
-create function public.export_league() returns jsonb language plpgsql security definer set search_path = '' as $$
+create or replace function public.export_league() returns jsonb language plpgsql security definer set search_path = '' as $$
 begin
  if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
  perform public.lock_due_rounds();
  return jsonb_build_object('config',(select to_jsonb(c) from public.league_config c where id=1),'players',(select coalesce(jsonb_agg(to_jsonb(p)),'[]'::jsonb) from public.league_players p),'entries',(select coalesce(jsonb_agg(to_jsonb(e)),'[]'::jsonb) from public.league_entries e));
 end $$;
-revoke all on function public.export_league() from public, anon;
-grant execute on function public.export_league() to authenticated;
 
-create function public.add_player(player_email text, player_name text) returns void language plpgsql security definer set search_path = '' as $$
+revoke all on function public.with_broadcast_locks(jsonb,timestamptz), public.lock_due_rounds(), public.draft_review(jsonb), public.carried_team(jsonb,integer,jsonb,integer), public.carry_locked_teams(jsonb) from public, anon, authenticated;
+revoke all on function public.read_league(), public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer), public.export_league() from public, anon;
+grant execute on function public.read_league(), public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer), public.export_league() to authenticated;
+
+do $$
+declare s jsonb; i integer; dates jsonb := '["2026-10-01T19:00:00Z", "2026-10-02T19:00:00Z", "2026-10-08T19:00:00Z", "2026-10-09T19:00:00Z", "2026-10-15T19:00:00Z", "2026-10-16T19:00:00Z", "2026-10-22T19:00:00Z", "2026-10-23T19:00:00Z", "2026-10-29T20:00:00Z", "2026-10-30T20:00:00Z"]'::jsonb;
 begin
- if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
- if length(trim(player_name))<1 or length(player_name)>80 or player_email not like '%@%.%' then raise exception 'Enter a name and valid email'; end if;
- insert into public.league_players(email,name) values(lower(trim(player_email)),trim(player_name));
-end $$;
-
-revoke all on function public.read_league(), public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer), public.add_player(text,text) from public, anon;
-grant execute on function public.read_league(), public.save_entry(text,integer,jsonb), public.save_league(jsonb,integer), public.add_player(text,text) to authenticated;
-
-create or replace function public.set_player_organiser(target_player_id uuid, organiser boolean) returns void language plpgsql security definer set search_path = '' as $$
-declare target public.league_players;
-begin
- -- Serialise role changes so concurrent demotions cannot remove every organiser.
- perform 1 from public.league_config where id=1 for update;
- if not found then raise exception 'League is not initialised'; end if;
- if not exists(select 1 from public.league_players where email=lower(auth.jwt()->>'email') and is_admin and auth.uid() is not null) then raise exception 'Organiser access required'; end if;
- if organiser is null then raise exception 'Choose Player or Organiser'; end if;
- select * into target from public.league_players where id=target_player_id;
- if target.id is null then raise exception 'Player not found'; end if;
- if target.is_admin and not organiser and (select count(*) from public.league_players where is_admin)<=1 then
-   raise exception 'The league must keep at least one organiser';
+ select state into s from public.league_config where id=1 for update;
+ if s is null then raise exception 'Initialise the league before running this upgrade'; end if;
+ if jsonb_array_length(s->'episodes')<>10 then raise exception 'Run the ten-episode upgrade first'; end if;
+ if s->>'broadcastScheduleVersion' is distinct from '1' then
+   for i in 0..9 loop
+     s := jsonb_set(s,array['episodes',i::text,'deadline'],dates->i);
+     if i<2 then
+       s := jsonb_set(s,array['episodes',i::text,'roleNeutral'],'true');
+       s := jsonb_set(s,array['episodes',i::text,'teamSize'],coalesce(s->'episodes'->i->'teamSize','8'::jsonb));
+     end if;
+   end loop;
+   s := jsonb_set(s,'{broadcastScheduleVersion}','1');
+   s := public.with_broadcast_locks(s,clock_timestamp());
+   update public.league_config set state=s,revision=revision+1 where id=1;
  end if;
- update public.league_players set is_admin=organiser where id=target_player_id;
+ perform public.lock_due_rounds();
 end $$;
-revoke all on function public.set_player_organiser(uuid,boolean) from public, anon;
-grant execute on function public.set_player_organiser(uuid,boolean) to authenticated;
-
--- Players can rename only their own team, including after episode 1 locks.
-create or replace function public.set_team_name(new_team_name text) returns jsonb
-language plpgsql security definer set search_path = '' as $$
-declare player_id uuid; chosen_name text;
-begin
- select id into player_id from public.league_players where email=lower(auth.jwt()->>'email') and auth.uid() is not null;
- if player_id is null then raise exception 'Not a league member'; end if;
- chosen_name := nullif(btrim(new_team_name),'');
- if char_length(chosen_name)>80 then raise exception 'Use a team name of 80 characters or fewer'; end if;
- update public.league_players set team_name=chosen_name where id=player_id;
- return public.read_league();
-end $$;
-revoke all on function public.set_team_name(text) from public, anon;
-grant execute on function public.set_team_name(text) to authenticated;
-
--- Verified players can register themselves without organiser permissions.
-create or replace function public.join_league(player_name text) returns jsonb
-language plpgsql security definer set search_path = '' as $$
-declare member_email text; display_name text;
-begin
- if auth.uid() is null then raise exception 'Sign in and verify your email before joining'; end if;
- -- Identity comes from Supabase, never from a supplied email or user metadata.
- select lower(trim(email)) into member_email from auth.users
- where id=auth.uid() and email_confirmed_at is not null;
- if member_email is null or member_email='' or member_email is distinct from lower(auth.jwt()->>'email') then
-   raise exception 'Sign in and verify your email before joining';
- end if;
- if not exists(select 1 from public.league_config where id=1) then raise exception 'League is not initialised'; end if;
- -- A retry or an organiser adding this email must retain that player's identity.
- if exists(select 1 from public.league_players where email=member_email) then
-   return public.read_league();
- end if;
- display_name := trim(player_name);
- if display_name is null or char_length(display_name)<1 or char_length(display_name)>80 then
-   raise exception 'Choose a league name between 1 and 80 characters';
- end if;
- insert into public.league_players(email,name,is_admin)
- values(member_email,display_name,false)
- on conflict(email) do nothing;
- return public.read_league();
-end $$;
-
-revoke all on function public.join_league(text) from public, anon;
-grant execute on function public.join_league(text) to authenticated;
 notify pgrst, 'reload schema';
+commit;

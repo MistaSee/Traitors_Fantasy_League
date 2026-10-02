@@ -14,7 +14,7 @@ test('legacy shield activation never scores or appears among active rules, inclu
   assert.ok(!activeScoringRules(s).some(r=>r.id===retired.id));
   assert.ok(!episodeScoringRules(s,episode).some(r=>r.id===retired.id));
   assert.equal(characterPoints(s,episode,'4'),18);
-  assert.equal(characterPoints(s,episode,'5'),episode===1?0:-5);
+  assert.equal(characterPoints(s,episode,'5'),episode<=2?0:-5);
   assert.equal(score(s,[{player_id:'p',kind:'weekly',episode,payload:{picks:['4'],captain:'4'}}],'p').weekly,36);
  }
  assert.equal(s.rules.length,47,'Reading old live state leaves its saved rules intact until migration');
