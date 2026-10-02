@@ -66,3 +66,5 @@ input,select{font:inherit;max-width:100%;border:1px solid #56604d;background:#0b
 @media(max-width:760px){.team-profile .row{align-items:stretch;flex-direction:column}.team-cell{min-width:135px}}
 
 #otp-code{font-family:monospace;letter-spacing:.2em;font-size:1.4rem}
+
+.team-link{background:none;border:0;padding:0;text-align:left;color:var(--gold);font-weight:bold;text-decoration:underline;text-underline-offset:4px;overflow-wrap:anywhere}.team-link:hover{text-decoration-thickness:2px}#team-inspector{scroll-margin-top:20px}#team-inspector-title:focus{outline:none}
