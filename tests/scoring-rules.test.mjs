@@ -14,7 +14,7 @@ test('legacy shield activation never scores or appears among active rules, inclu
   assert.ok(!activeScoringRules(s).some(r=>r.id===retired.id));
   assert.ok(!episodeScoringRules(s,episode).some(r=>r.id===retired.id));
   assert.equal(characterPoints(s,episode,'4'),18);
-  assert.equal(characterPoints(s,episode,'5'),episode<=2?0:-5);
+  assert.equal(characterPoints(s,episode,'5'),-5);
   assert.equal(score(s,[{player_id:'p',kind:'weekly',episode,payload:{picks:['4'],captain:'4'}}],'p').weekly,36);
  }
  assert.equal(s.rules.length,48,'Reading old live state leaves its saved rules intact until migration');
@@ -41,8 +41,21 @@ test('recruitment scores for a drafted Faithful without rewriting their frozen r
   const ep=s.episodes[number-1];ep.locked=true;
   ep.roster['4']={role:'Faithful',status:'Active'};
   ep.counts={'4':{FAITHFUL_RECRUITED:1}};
-  assert.equal(characterPoints(s,number,'4'),number<=2?0:10);
-  assert.equal(score(s,[{player_id:'p',kind:'weekly',episode:number,payload:{picks:['4'],captain:'4'}}],'p').weekly,number<=2?0:20);
+  assert.equal(characterPoints(s,number,'4'),10);
+  assert.equal(score(s,[{player_id:'p',kind:'weekly',episode:number,payload:{picks:['4'],captain:'4'}}],'p').weekly,20);
   assert.equal(ep.roster['4'].role,'Faithful');
  }
+});
+
+
+test('opening-round accusations and recruitment/murder offset score without changing drafts',()=>{
+ const s=structuredClone(seed);const before=structuredClone(s.episodes);
+ s.episodes[0].locked=true;s.episodes[1].locked=true;
+ s.episodes[0].counts={'4':{FAITHFUL_PUBLICLY_NAMES_TRAITOR:1},'6':{FAITHFUL_PUBLICLY_NAMES_TRAITOR:1}};
+ s.episodes[1].counts={'4':{FAITHFUL_RECRUITED:1},'6':{CHARACTER_MURDERED:1,MURDERED_AFTER_CORRECT_READ:1}};
+ assert.equal(characterPoints(s,1,'4')+characterPoints(s,1,'6'),6);
+ assert.equal(characterPoints(s,2,'4')+characterPoints(s,2,'6'),10);
+ assert.equal(score(s,[{player_id:'p',kind:'weekly',episode:2,payload:{picks:['4','6'],captain:'4'}}],'p').weekly,20);
+ assert.equal(score(s,[{player_id:'p',kind:'weekly',episode:2,payload:{picks:['4','6'],captain:'6'}}],'p').weekly,10);
+ for(let i=0;i<2;i++){assert.equal(s.episodes[i].roleNeutral,before[i].roleNeutral);assert.deepEqual(s.episodes[i].roster,before[i].roster);}
 });

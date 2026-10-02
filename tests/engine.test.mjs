@@ -32,22 +32,22 @@ test('episode 1 accepts eight eligible celebrities without revealed roles, separ
  assert.match(validateDraft(s,1,picks,'4'),/not enabled/);
 });
 
-test('episode 1 scores only Any-role events, including captain penalties, and keeps preseason separate',()=>{
+test('episode 1 scores all applicable events, including captain penalties, and keeps preseason separate',()=>{
  const s=fixture(), picks=['4','5','6','7','8','9','10','11'];
  s.preseasonLocked=true;
- s.episodes[0].counts={'4':{SHIELD_RECEIVED:1,TALKING_HEAD:3,VOTES_RECEIVED:2,TRAITOR_MURDER_SUCCESS:99},'5':{MISSION_GROUP_COMPLETE:1,FAITHFUL_SURVIVES_EPISODE:99}};
+ s.episodes[0].counts={'4':{SHIELD_RECEIVED:1,TALKING_HEAD:3,VOTES_RECEIVED:2,TRAITOR_MURDER_SUCCESS:1},'5':{MISSION_GROUP_COMPLETE:1,FAITHFUL_SURVIVES_EPISODE:1}};
  const entries=[{player_id:'a',kind:'weekly',episode:1,payload:{picks,captain:'4'}},{player_id:'a',kind:'preseason',episode:1,payload:{picks:['4','5','6']}}];
- assert.ok(episodeScoringRules(s,1).every(r=>r.role==='Any'));
+ assert.equal(episodeScoringRules(s,1).length,s.rules.length);
  assert.equal(score(s,entries,'a').weekly,0);
  s.episodes[0].locked=true;
- assert.equal(characterPoints(s,1,'4'),9);
- assert.deepEqual([score(s,entries,'a').preseason,score(s,entries,'a').weekly,score(s,entries,'a').total],[20,20,40]);
+ assert.equal(characterPoints(s,1,'4'),19);
+ assert.deepEqual([score(s,entries,'a').preseason,score(s,entries,'a').weekly,score(s,entries,'a').total],[20,43,63]);
  s.episodes[0].counts['4'].VOTES_RECEIVED=3;
- assert.equal(score(s,entries,'a').weekly,18,'Correcting a count replaces its previous value');
- s.episodes[0].counts['4']={VOTES_RECEIVED:3,TRAITOR_MURDER_SUCCESS:99};
- assert.equal(score(s,entries,'a').weekly,-4,'Captain doubles role-neutral penalties too');
+ assert.equal(score(s,entries,'a').weekly,41,'Correcting a count replaces its previous value');
+ s.episodes[0].counts['4']={VOTES_RECEIVED:3,TRAITOR_MURDER_SUCCESS:1};
+ assert.equal(score(s,entries,'a').weekly,19,'Captain doubles positive and negative points');
  s.episodes[1].roster['4']={role:'Faithful',status:'Banished'};
  s.episodes[1].counts={'4':{TRAITOR_MURDER_SUCCESS:1}};
- assert.equal(score(s,entries,'a').weekly,-4);
+ assert.equal(score(s,entries,'a').weekly,19);
  assert.equal(characterPoints(s,2,'4'),10,'Later episodes retain all scoring rules');
 });

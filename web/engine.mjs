@@ -22,8 +22,8 @@ export function validateDraft(state, episode, picks, captain, now=Date.now()) {
   return '';
 }
 export function episodeScoringRules(state, episode) {
-  const rules = activeScoringRules(state);
-  return neutralRound(state.episodes.find(ep=>ep.number===episode)) ? rules.filter(rule => rule.role === 'Any') : rules;
+  // Draft role quotas do not restrict scoring. Organisers record eligible events explicitly.
+  return activeScoringRules(state);
 }
 export function characterPoints(state, episode, id) {
   const ep = state.episodes.find(e => e.number === episode);

@@ -12,7 +12,7 @@ await db.exec(readFileSync(new URL('../schema.sql',import.meta.url),'utf8'));
 const seed = legacySeason();
 seed.episodes=seed.episodes.slice(0,9);
 delete seed.episodes[0].teamSize;
-seed.episodes[0].counts = {'4':{SHIELD_RECEIVED:1,TRAITOR_MURDER_SUCCESS:99}};
+seed.episodes[0].counts = {'4':{SHIELD_RECEIVED:1,TRAITOR_MURDER_SUCCESS:1}};
 await db.query('insert into public.league_config values(1,$1,0)',[seed]);
 await db.exec(`insert into public.league_players(email,name,is_admin) values('admin@example.com','Admin',true),('player@example.com','Player',false);`);
 async function as(email) {
@@ -69,7 +69,7 @@ assert.equal((await read()).entries.length,0,'Other players’ open episode 1 te
 await assert.rejects(()=>change(s=>{s.episodes[0].teamSize=7;}),/invalidate/);
 await assert.rejects(()=>change(s=>{s.episodes[0].roster['4']={role:'Unknown',status:'Withdrawn'};}),/invalidate/);
 await change(s=>{
- s.episodes[0].counts={'4':{SHIELD_RECEIVED:1,TALKING_HEAD:3,VOTES_RECEIVED:2,TRAITOR_MURDER_SUCCESS:99},'5':{MISSION_GROUP_COMPLETE:1,FAITHFUL_SURVIVES_EPISODE:99}};
+ s.episodes[0].counts={'4':{SHIELD_RECEIVED:1,TALKING_HEAD:3,VOTES_RECEIVED:2,TRAITOR_MURDER_SUCCESS:1},'5':{MISSION_GROUP_COMPLETE:1,FAITHFUL_SURVIVES_EPISODE:1}};
  s.episodes[0].locked=true;
 });
 assert.equal((await read()).entries.length,1,'Locking episode 1 reveals the team but not open preseason predictions');
@@ -81,12 +81,12 @@ await as('player@example.com');
 await assert.rejects(()=>saveTeam(team),/locked/);
 await db.query("select public.save_entry('preseason',1,$1)",[{picks:['4','5','7']}]);
 let data=await read();
-assert.equal(score(data.state,data.entries,data.me.id).weekly,20,'Only neutral events score, with the captain doubled');
+assert.equal(score(data.state,data.entries,data.me.id).weekly,43,'All applicable events score, with the captain doubled');
 await as('admin@example.com');
 await change(s=>{s.episodes[0].counts['4'].VOTES_RECEIVED=3;});
 await change(s=>{s.episodes[0].counts['4'].VOTES_RECEIVED=3;});
 await as('player@example.com'); data=await read();
-assert.equal(score(data.state,data.entries,data.me.id).weekly,18,'Corrections replace counts without double awarding');
+assert.equal(score(data.state,data.entries,data.me.id).weekly,41,'Corrections replace counts without double awarding');
 
 // Upgrading a legacy league must never reopen an already locked episode.
 await db.exec('reset role');
@@ -97,4 +97,4 @@ await assert.rejects(()=>saveTeam(team),/locked/);
 await db.exec('reset role; set role anon');
 await assert.rejects(()=>saveTeam(team),/permission denied/);
 await db.close();
-console.log('Episode 1 database passed: repeatable upgrade, data preservation, ordinary-player teams, privacy, independent locks, frozen eligibility, neutral scoring and corrections.');
+console.log('Episode 1 database passed: repeatable upgrade, data preservation, ordinary-player teams, privacy, independent locks, frozen eligibility, full scoring and corrections.');

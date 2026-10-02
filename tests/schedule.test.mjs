@@ -36,7 +36,7 @@ test('next-round default, countdown, and locks do not mutate saved teams',()=>{
  assert.equal(upgradeDemoSchedule(legacy),true);assert.equal(upgradeDemoSchedule(legacy),false);
  assert.deepEqual(legacy.episodes[0].counts,before.counts);assert.deepEqual(legacy.episodes[0].roster,before.roster);
 });
-test('episode 2 accepts any eight active celebrities and scores only neutral events; episode 3 keeps quotas',()=>{
+test('episode 2 accepts any eight active celebrities and uses full scoring; episode 3 keeps quotas',()=>{
  const s=structuredClone(seed),at=Date.parse('2026-10-02T08:00:00Z');
  assert.equal(validateDraft(s,2,picks,'4',at),'');
  assert.match(validateDraft(s,2,picks.slice(1),'5',at),/8 celebrities/);
@@ -47,10 +47,10 @@ test('episode 2 accepts any eight active celebrities and scores only neutral eve
  assert.match(validateDraft(s,3,picks,'4',at),/active/);
  s.characters.forEach((c,i)=>s.episodes[2].roster[c.id]={role:i<2?'Traitor':'Faithful',status:'Active'});
  assert.equal(validateDraft(s,3,picks,'4',at),'');
- s.episodes[1].locked=true;s.episodes[1].counts={'4':{SHIELD_RECEIVED:1,VOTES_RECEIVED:2,TRAITOR_MURDER_SUCCESS:100},'5':{FAITHFUL_SURVIVES_EPISODE:100}};
- assert.ok(episodeScoringRules(s,2).every(r=>r.role==='Any'));
- assert.equal(characterPoints(s,2,'4'),6);
- assert.equal(score(s,[{player_id:'p',kind:'weekly',episode:2,payload:{picks,captain:'4'}}],'p').weekly,12);
+ s.episodes[1].locked=true;s.episodes[1].counts={'4':{SHIELD_RECEIVED:1,VOTES_RECEIVED:2,TRAITOR_MURDER_SUCCESS:1},'5':{FAITHFUL_SURVIVES_EPISODE:1}};
+ assert.equal(episodeScoringRules(s,2).length,s.rules.length);
+ assert.equal(characterPoints(s,2,'4'),16);
+ assert.equal(score(s,[{player_id:'p',kind:'weekly',episode:2,payload:{picks,captain:'4'}}],'p').weekly,35);
  s.episodes[2].counts={'4':{TRAITOR_MURDER_SUCCESS:1}};
  assert.equal(characterPoints(s,3,'4'),10);
 });

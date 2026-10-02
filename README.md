@@ -267,11 +267,11 @@ The news feed updates headlines only. **Organisers enter starting roles, recruit
 4. Preseason predictions and episode 1 teams close automatically at the first BBC broadcast deadline. The organiser can close either earlier. The preseason lock also freezes scoring values for the season.
 5. After the reveal, record the original roles under **Season controls → Record the original roles after the full reveal** and save. Do not change episode 1’s frozen roster.
 
-Episodes 1 and 2 score only rules labelled **Any role**: shields, missions, confessionals, role-neutral voting events and other universal bonuses/penalties. Captaincy doubles these points, including penalties. Traitor- and Faithful-specific counts do not contribute to either opening round, even if older data contains them. These team points appear in the leaderboard’s Weekly column; the three original-Traitor predictions keep their separate Preseason score. Their points are awarded once exactly three original Traitors have been recorded; the incomplete episode 1 reveal does not settle those predictions.
+All episodes use the full scoring rules, including Faithful and Traitor events. Episodes 1 and 2 still allow any eight eligible celebrities and a captain, regardless of role. Award counts only for events that happened, using the celebrity’s role at the time; leave events that did not happen at zero. Captaincy doubles positive and negative points. Weekly team scores remain separate from preseason predictions, which settle once all three original Traitors are recorded.
 
 ### Each episode
 
-1. For episodes 1 and 2, check the eligible cast before collecting picks. Players choose any eight eligible celebrities and a captain. Unknown roles are allowed; only Any-role events score.
+1. For episodes 1 and 2, check the eligible cast before collecting picks. Players choose any eight eligible celebrities and a captain. Unknown roles are allowed when drafting; full scoring applies once events and roles are known.
 2. Before episode 3, choose **Copy starting roles**, update anyone eliminated and save. For episodes 4–10, copy the previous episode's roster, update recruitment and eliminations, and save **before the deadline**. Rosters describe who is active before the episode. Leave unresolved roles as Unknown until the reveal.
 3. Check the draft quotas. Defaults are 2 Traitors + 6 Faithful for episodes 3–6, then 1 + 3 for episodes 7–10. Adjust before teams are submitted if the remaining cast requires it.
 4. Players can change their team and captain before each broadcast. Celebrities can appear on multiple teams. Captaincy doubles positive and negative points. If a player does nothing, their previous team carries over automatically.
@@ -443,6 +443,11 @@ This is an unofficial fantasy league and is not affiliated with the programme or
 
 For existing leagues, run the whole [recruitment upgrade](migrations/20261002_recruitment_scoring.sql) in Supabase SQL Editor, then refresh the website. It adds one rule and preserves all existing points values, counts, picks, names, rosters and locks. Rerunning it makes no further changes.
 
-In **Organiser → Episode setup & scoring**, select the episode and recruited celebrity. Enter **1** for **Faithful accepts recruitment to the Traitors**, then **Save event counts**. This awards **+10** to the recruit (**+20** as captain), once per celebrity per season. An offer, refusal or original Traitor selection earns nothing. As a Faithful-specific event, it does not score in the role-neutral opening episodes 1–2.
+In **Organiser → Episode setup & scoring**, select the episode and recruited celebrity. Enter **1** for **Faithful accepts recruitment to the Traitors**, then **Save event counts**. This awards **+10** to the recruit (**+20** as captain), once per celebrity per season. An offer, refusal or original Traitor selection earns nothing. This event can score in any episode, including episodes 1–2.
 
 Keep the recruitment episode’s frozen draft roster unchanged; set the celebrity to **Traitor** in the next episode’s roster. The organiser records recruitment explicitly: changing a role does not automatically award points.
+
+
+### Full scoring in the opening episodes
+
+Episodes 1 and 2 use full scoring. Refresh the website to load the update; no database migration or new sign-in is needed. Existing event counts are retained and now contribute to totals, including any previously entered role-specific counts. Review those counts before publishing episode scores. The `roleNeutral` flag describes draft eligibility only; it does not restrict scoring.

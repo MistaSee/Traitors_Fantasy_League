@@ -6,6 +6,7 @@ export const broadcastDeadlines = [
  '2026-10-22T19:00:00Z','2026-10-23T19:00:00Z',
  '2026-10-29T20:00:00Z','2026-10-30T20:00:00Z'
 ];
+// Draft format only: these rounds accept any roles but use full scoring.
 export const neutralRound = ep => ep?.number === 1 || ep?.roleNeutral === true;
 export function entryDeadline(state, kind, episode) {
  return kind === 'weekly' ? state.episodes.find(ep=>ep.number===episode)?.deadline
