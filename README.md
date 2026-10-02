@@ -71,7 +71,7 @@ Keep this project open in a browser tab for the next steps.
 2. Copy all of [seed.sql](seed.sql) into it.
 3. Click **Run**.
 
-This loads **21 celebrities, 46 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
+This loads **21 celebrities, 47 scoring rules and 10 episodes**. It does not create player accounts or import anyone's old picks. Celebrity roles start as **Unknown**; organisers enter them after the show's reveal.
 
 To check the import, run this in a new query:
 
@@ -335,7 +335,7 @@ Website changes committed to `main` deploy through Cloudflare. Database changes 
 
 ### Scoring cleanup (25 September 2026)
 
-The league now has 46 scoring rules. Receiving a shield earns **+8** and blocking an attempted murder earns **+10**. These can total **18 points**, or **36 for the captain**. There is no separate activation bonus.
+The shield cleanup left 46 scoring rules (47 with the recruitment bonus below). Receiving a shield earns **+8** and blocking an attempted murder earns **+10**. These can total **18 points**, or **36 for the captain**. There is no separate activation bonus.
 
 The updated website applies this scoring to existing leagues immediately, including previously recorded events. To clean the stored Supabase rules and counts too:
 
@@ -437,3 +437,12 @@ See [Development notes](docs/DEVELOPMENT.md) for local previews and automated ch
 - [Email template instructions and supported account flows](emails/README.md)
 
 This is an unofficial fantasy league and is not affiliated with the programme or broadcaster.
+
+
+### Recruitment scoring
+
+For existing leagues, run the whole [recruitment upgrade](migrations/20261002_recruitment_scoring.sql) in Supabase SQL Editor, then refresh the website. It adds one rule and preserves all existing points values, counts, picks, names, rosters and locks. Rerunning it makes no further changes.
+
+In **Organiser → Episode setup & scoring**, select the episode and recruited celebrity. Enter **1** for **Faithful accepts recruitment to the Traitors**, then **Save event counts**. This awards **+10** to the recruit (**+20** as captain), once per celebrity per season. An offer, refusal or original Traitor selection earns nothing. As a Faithful-specific event, it does not score in the role-neutral opening episodes 1–2.
+
+Keep the recruitment episode’s frozen draft roster unchanged; set the celebrity to **Traitor** in the next episode’s roster. The organiser records recruitment explicitly: changing a role does not automatically award points.

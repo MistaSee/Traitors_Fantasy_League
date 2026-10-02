@@ -495,6 +495,14 @@
       "label": "Damages another Traitor without clear strategic gain",
       "points": -5,
       "notes": "Use sparingly."
+    },
+    {
+      "id": "FAITHFUL_RECRUITED",
+      "category": "Faithful",
+      "role": "Faithful",
+      "label": "Faithful accepts recruitment to the Traitors",
+      "points": 10,
+      "notes": "Enter 1 for the recruit in the episode they accept and become a Traitor; once per celebrity per season. No points for an offer, refusal or original Traitor selection. Update their role for the next episode; keep this episode’s draft roster unchanged."
     }
   ],
   "episodes": [
