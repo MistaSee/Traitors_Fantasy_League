@@ -16,7 +16,7 @@ test('ten-episode seeds match and episode 10 uses the late-season quota',()=>{
  const state=structuredClone(seed),ep=state.episodes[9],picks=['4','5','6','7'];
  assert.deepEqual([ep.traitors,ep.faithful],[1,3]);
  picks.forEach((id,i)=>ep.roster[id]={role:i?'Faithful':'Traitor',status:'Active'});
- assert.equal(validateDraft(state,10,picks,'4'),'');assert.match(validateDraft(state,11,picks,'4'),/1 to 10/);
+ assert.equal(validateDraft(state,10,picks,'4',0),'');assert.match(validateDraft(state,11,picks,'4'),/1 to 10/);
  ep.counts={'4':{TRAITOR_MURDER_SUCCESS:1},'5':{SHIELD_RECEIVED:1}};
  const entries=[{player_id:'p',kind:'weekly',episode:10,payload:{picks,captain:'4'}},{player_id:'p',kind:'final',episode:10,payload:{side:'Faithful'}}];
  assert.equal(score(state,entries,'p').total,0);ep.locked=true;

@@ -1,3 +1,4 @@
+import {legacySeason} from './legacy-season.mjs';
 const {PGlite}=await import(process.env.PGLITE_MODULE||'@electric-sql/pglite');
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -11,7 +12,7 @@ for(const locked of [false,true]){
  create function auth.jwt() returns jsonb language sql as $$select current_setting('test.jwt',true)::jsonb$$;
  create function auth.uid() returns uuid language sql as $$select (auth.jwt()->>'sub')::uuid$$;`);
  await db.exec(readFile('schema.sql'));
- const seed=JSON.parse(readFile('web/seed.json'));
+ const seed=legacySeason();
  seed.rules.push({id:'SHIELD_USED',role:'Any',category:'Universal',label:'Legacy event',points:4});
  seed.rules.find(r=>r.id==='TALKING_HEAD').points=2;
  seed.preseasonLocked=locked;seed.episodes[0].locked=locked;

@@ -1,15 +1,16 @@
 import {activeScoringRules} from './scoring-rules.mjs';
+import {neutralRound, draftClosed} from './schedule.mjs';
 import {finalEpisode} from './season.mjs';
 export function episodeOneTeamSize(state) {
   const size = state.episodes.find(e => e.number === 1)?.teamSize;
   return Number.isInteger(size) && size > 0 ? size : 0;
 }
-export function validateDraft(state, episode, picks, captain) {
+export function validateDraft(state, episode, picks, captain, now=Date.now()) {
   const ep = state.episodes.find(e => e.number === episode);
   if (!ep) return `Choose an episode from 1 to ${finalEpisode(state)}.`;
-  const opening = episode === 1;
-  if (opening && !episodeOneTeamSize(state)) return 'Episode 1 teams are not enabled for this league yet.';
-  if (ep.locked) return 'This episode is locked.';
+  const opening = neutralRound(ep);
+  if (episode === 1 && !episodeOneTeamSize(state)) return 'Episode 1 teams are not enabled for this league yet.';
+  if (draftClosed(state, 'weekly', episode, now)) return 'This episode is locked.';
   if (opening && picks.length !== ep.teamSize) return `Choose ${ep.teamSize} celebrities of any role.`;
   if (!opening && picks.length !== ep.traitors + ep.faithful) return `Choose ${ep.traitors} Traitors and ${ep.faithful} Faithful.`;
   if (new Set(picks).size !== picks.length) return 'Choose each celebrity only once.';
@@ -22,7 +23,7 @@ export function validateDraft(state, episode, picks, captain) {
 }
 export function episodeScoringRules(state, episode) {
   const rules = activeScoringRules(state);
-  return episode === 1 ? rules.filter(rule => rule.role === 'Any') : rules;
+  return neutralRound(state.episodes.find(ep=>ep.number===episode)) ? rules.filter(rule => rule.role === 'Any') : rules;
 }
 export function characterPoints(state, episode, id) {
   const ep = state.episodes.find(e => e.number === episode);
@@ -33,7 +34,7 @@ export function score(state, entries, playerId) {
   const episodes = {};
   for (const entry of entries.filter(d => d.player_id === playerId)) {
     const p = entry.payload;
-    if (entry.kind === 'preseason' && state.preseasonLocked) {
+    if (entry.kind === 'preseason' && state.preseasonLocked && state.characters.filter(c=>c.startingRole==='Traitor').length === 3) {
       const correct = p.picks.filter(id => state.characters.find(c => c.id === id)?.startingRole === 'Traitor').length;
       preseason = correct * 5 + (correct === 3 ? 5 : 0);
     }

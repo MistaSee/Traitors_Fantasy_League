@@ -1,8 +1,9 @@
+import {legacySeason} from './legacy-season.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateDraft,score,characterPoints,episodeOneTeamSize,episodeScoringRules} from '../web/engine.mjs';
-const seed=JSON.parse(readFileSync(new URL('../web/seed.json',import.meta.url)));
+const seed=legacySeason();
 function fixture(){const s=structuredClone(seed);s.characters.forEach((c,i)=>{c.startingRole=i<3?'Traitor':'Faithful';s.episodes[1].roster[c.id]={role:i<3?'Traitor':'Faithful',status:'Active'};});return s;}
 test('imports the cast and current league rules',()=>{assert.equal(seed.characters.length,21);assert.equal(seed.rules.length,46);assert.deepEqual(seed.episodes.map(e=>e.traitors+e.faithful),[0,8,8,8,8,8,4,4,4,4]);});
 test('validates role counts, duplicates, captain, elimination and locks',()=>{const s=fixture(),p=['4','5','7','8','9','10','11','12'];assert.equal(validateDraft(s,2,p,'4'),'');assert.match(validateDraft(s,2,[...p.slice(0,7),'4'],'4'),/once/);assert.match(validateDraft(s,2,p,'6'),/captain/);s.episodes[1].roster['4'].status='Murdered';assert.match(validateDraft(s,2,p,'4'),/active/);s.episodes[1].locked=true;assert.match(validateDraft(s,2,p,'4'),/locked/);});

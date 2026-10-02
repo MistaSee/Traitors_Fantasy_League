@@ -1,3 +1,4 @@
+import {legacySeason} from './legacy-season.mjs';
 const {PGlite}=await import(process.env.PGLITE_MODULE || '@electric-sql/pglite');
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
@@ -11,7 +12,7 @@ const schema=readFileSync(new URL('../schema.sql',import.meta.url),'utf8');
 const migration=readFileSync(new URL('../migrations/20260914_self_registration.sql',import.meta.url),'utf8');
 assert.equal(schema.slice(schema.indexOf('create or replace function public.join_league')),migration.slice(migration.indexOf('create or replace function')),'Fresh installs and upgrades use identical registration SQL');
 await db.exec(schema);
-const seed=JSON.parse(readFileSync(new URL('../web/seed.json',import.meta.url)));
+const seed=legacySeason();
 await db.query('insert into public.league_config values(1,$1,7)',[seed]);
 const ids={new:'11111111-1111-4111-8111-111111111111',admin:'22222222-2222-4222-8222-222222222222',preadded:'33333333-3333-4333-8333-333333333333',unverified:'44444444-4444-4444-8444-444444444444',late:'55555555-5555-4555-8555-555555555555'};
 for(const [name,id] of Object.entries(ids))await db.query('insert into auth.users values($1,$2,$3)',[id,`${name}@example.com`,name==='unverified'?null:'2026-09-14T12:00:00Z']);

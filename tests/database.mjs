@@ -1,3 +1,4 @@
+import {legacySeason} from './legacy-season.mjs';
 const {PGlite} = await import(process.env.PGLITE_MODULE || '@electric-sql/pglite');
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
@@ -6,7 +7,7 @@ await db.exec(`create role anon; create role authenticated; create schema auth;
 create function auth.jwt() returns jsonb language sql as $$ select current_setting('test.jwt',true)::jsonb $$;
 create function auth.uid() returns uuid language sql as $$ select (auth.jwt()->>'sub')::uuid $$;`);
 await db.exec(readFileSync(new URL('../schema.sql',import.meta.url),'utf8'));
-const s=JSON.parse(readFileSync(new URL('../web/seed.json',import.meta.url)));
+const s=legacySeason();
 await db.query('insert into public.league_config values(1,$1,0)',[s]);
 await db.exec(`insert into public.league_players(email,name,is_admin) values('admin@example.com','Admin',true),('player@example.com','Player',false);`);
 async function as(email){await db.query("select set_config('test.jwt',$1,false)",[JSON.stringify({email,sub:'11111111-1111-4111-8111-111111111111'})]);await db.exec('set role authenticated');}
@@ -113,3 +114,4 @@ await import('./team-names.database.mjs');
 await import('./ten-episodes.database.mjs');
 
 await import('./scoring-rules.database.mjs');
+await import('./broadcast-schedule.database.mjs');
