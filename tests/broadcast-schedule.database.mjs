@@ -33,7 +33,10 @@ const playersBefore=(await db.query('select * from public.league_players order b
 await db.exec(clocked(migration));
 const after=(await db.query('select * from public.league_config')).rows[0];
 assert.equal(after.revision,5);assert.equal(after.state.episodes[1].teamSize,8);
-assert.equal(after.state.episodes[1].roleNeutral,true);assert.equal(after.state.episodes[1].locked,false);
+assert.equal(after.state.episodes[1].roleNeutral,true);
+assert.deepEqual((await db.query('select public.carried_team($1,2,$2,1) as team',[after.state,payload])).rows[0].team.picks,picks,'Existing ordered picks keep their choice priority');
+const unknownOrder={...payload,selectionOrder:null};
+assert.deepEqual((await db.query('select public.carried_team($1,2,$2,1) as team',[after.state,unknownOrder])).rows[0].team,carryTeam(after.state,2,{episode:1,payload:unknownOrder}),'Unknown-order alphabetical fallback agrees between SQL and browser');assert.equal(after.state.episodes[1].locked,false);
 assert.deepEqual((await db.query('select * from public.league_entries order by player_id,kind,episode')).rows,entriesBefore);
 assert.deepEqual((await db.query('select * from public.league_players order by id')).rows,playersBefore);
 await db.exec(clocked(migration));assert.deepEqual((await db.query('select * from public.league_config')).rows[0],after,'Migration rerun is harmless');

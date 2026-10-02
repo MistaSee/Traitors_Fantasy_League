@@ -8,7 +8,7 @@ Use an isolated test league for scoring exercises. Production deadlines close au
 - [ ] Leave a draft page open across its deadline. Its save control becomes disabled without clearing unsaved selections. A direct/stale submission is also rejected by the database.
 - [ ] Do not submit for the next episode. On the next league read after the deadline, the old team carries forward without that player logging in. Check several consecutive missed rounds.
 - [ ] Submit a different team for the new episode. Automatic carry-over must never overwrite it.
-- [ ] Reduce the next round's quota. The most recently selected surplus players drop first within each role. Older teams without recorded order retain names A–Z.
+- [ ] Reduce the next round's quota. The most recently selected surplus players drop first within each role. Existing ordered picks keep their original selection priority. Teams with explicitly unknown or invalid order retain names A–Z.
 - [ ] Remove the old captain from eligibility. The first retained pick becomes captain. Vacancies remain empty and score zero; the system invents no replacement.
 - [ ] Before the deadline, fill vacancies in a carried preview and save. Rename the team while picks are unsaved: the selections and captain must survive.
 - [ ] Other players' open picks stay private. Organisers see only review metadata until a round closes. Review flags never delete entries or disqualify scores.

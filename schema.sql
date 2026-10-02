@@ -53,14 +53,14 @@ begin
 end $$;
 revoke all on function public.with_broadcast_locks(jsonb,timestamptz) from public, anon, authenticated;
 
--- Retain earliest selections within each new quota. Legacy teams use name A–Z.
+-- Original picks arrays are stored in click order. Use A–Z only for explicitly missing or invalid order.
 create or replace function public.carried_team(s jsonb, episode_number integer, previous_payload jsonb, previous_episode integer) returns jsonb
 language plpgsql immutable set search_path = '' as $$
 declare ep jsonb := s->'episodes'->(episode_number-1); ordered jsonb; kept jsonb := '[]'; pick text; role_name text; t integer := 0; f integer := 0; neutral boolean; captain text;
 begin
  if previous_payload is null then return null; end if;
  neutral := episode_number=1 or coalesce((ep->>'roleNeutral')::boolean,false);
- ordered := previous_payload->'selectionOrder';
+ ordered := case when previous_payload ? 'selectionOrder' then previous_payload->'selectionOrder' else previous_payload->'picks' end;
  if jsonb_typeof(ordered) is distinct from 'array' then ordered := null;
  elsif jsonb_array_length(ordered)<>jsonb_array_length(previous_payload->'picks')
    or (select count(distinct value) from jsonb_array_elements_text(ordered))<>jsonb_array_length(ordered)

@@ -11,7 +11,7 @@ test('shrinking quotas drop the most recent eligible picks and preserve the capt
  assert.deepEqual(previous.payload.picks,picks,'Source entry remains unchanged');
 });
 test('unknown order falls back to names A–Z, elimination leaves vacancies, captain replacement is deterministic',()=>{
- const s=fixture(),previous={episode:6,payload:{picks:['12','11','10','9','8','7','6','4'],captain:'12'}};
+ const s=fixture(),previous={episode:6,payload:{picks:['12','11','10','9','8','7','6','4'],captain:'12',selectionOrder:null}};
  const expected=[...previous.payload.picks].sort((a,b)=>s.characters.find(c=>c.id===a).name.localeCompare(s.characters.find(c=>c.id===b).name));
  const retained=carryTeam(s,7,previous);assert.deepEqual(retained.picks,expected.filter(id=>id==='4'||!['4','6'].includes(id)).slice(0,4));
  s.episodes[6].roster[retained.captain].status='Banished';
@@ -25,4 +25,9 @@ test('previews follow consecutive missed rounds, but a saved later team takes pr
  assert.equal(carriedPreview(s,entries,'missing',7),null);
  entries.push({player_id:'p',kind:'weekly',episode:6,payload:{picks:picks.toReversed(),selectionOrder:picks.toReversed(),captain:'12'}});
  assert.equal(carriedPreview(s,entries,'p',7).captain,'12');
+});
+
+test('existing picks arrays retain their original choice order without new metadata',()=>{
+ const s=fixture(),picks=['5','9','8','7','4','10','11','12'];
+ assert.deepEqual(carryTeam(s,7,{episode:6,payload:{picks,captain:'9'}}).picks,['5','9','8','7']);
 });

@@ -1,16 +1,17 @@
 import {neutralRound} from './schedule.mjs';
 
-// Explicit selection order survives every carry. Older entries fall back to A–Z.
+// Original submissions already store picks in click order. Explicitly unknown or invalid order falls back to A–Z.
 export function carryTeam(state, episode, previous) {
  const ep=state.episodes.find(e=>e.number===episode);
  if(!ep||!previous)return null;
  const payload=previous.payload, picks=payload.picks||[];
- const known=Array.isArray(payload.selectionOrder)&&payload.selectionOrder.length===picks.length&&new Set(payload.selectionOrder).size===picks.length&&payload.selectionOrder.every(id=>picks.includes(id));
+ const selectionOrder=payload.selectionOrder===undefined?picks:payload.selectionOrder;
+ const known=Array.isArray(selectionOrder)&&selectionOrder.length===picks.length&&new Set(selectionOrder).size===picks.length&&selectionOrder.every(id=>picks.includes(id));
  const byName=(a,b)=>{
   const an=state.characters.find(c=>c.id===a)?.name||a,bn=state.characters.find(c=>c.id===b)?.name||b;
   return an<bn?-1:an>bn?1:a<b?-1:a>b?1:0;
  };
- const order=known?[...payload.selectionOrder]:[...picks].sort(byName);
+ const order=known?[...selectionOrder]:[...picks].sort(byName);
  const kept=[];let traitors=0,faithful=0;
  for(const id of order){
   if(!state.characters.some(c=>c.id===id))continue;
