@@ -451,3 +451,7 @@ Keep the recruitment episode’s frozen draft roster unchanged; set the celebrit
 ### Full scoring in the opening episodes
 
 Episodes 1 and 2 use full scoring. Refresh the website to load the update; no database migration or new sign-in is needed. Existing event counts are retained and now contribute to totals, including any previously entered role-specific counts. Review those counts before publishing episode scores. The `roleNeutral` flag describes draft eligibility only; it does not restrict scoring.
+
+### Confirming a preseason trio that includes a recruit
+
+The optional league-state `preseasonTraitors` array records the three celebrity IDs used to settle preseason predictions. When present, it takes precedence over starting roles; it must contain exactly three distinct existing cast IDs. Without it, existing leagues retain settlement against three original Traitors. This allows an organiser-agreed reveal to include a recruit without changing their historical starting role or recruitment points. Changing current episode roles does not change this result. The confirmed names appear in Season controls.

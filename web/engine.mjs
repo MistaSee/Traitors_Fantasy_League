@@ -29,13 +29,18 @@ export function characterPoints(state, episode, id) {
   const ep = state.episodes.find(e => e.number === episode);
   return episodeScoringRules(state, episode).reduce((sum, r) => sum + (ep?.counts[id]?.[r.id] || 0) * r.points, 0);
 }
+export function preseasonTraitors(state) {
+  const ids = state.preseasonTraitors ?? state.characters.filter(c => c.startingRole === 'Traitor').map(c => c.id);
+  return Array.isArray(ids) && ids.length === 3 && new Set(ids).size === 3 && ids.every(id => state.characters.some(c => c.id === id)) ? ids : [];
+}
 export function score(state, entries, playerId) {
+  const predictionResult = preseasonTraitors(state);
   let preseason = 0, final = 0, weekly = 0;
   const episodes = {};
   for (const entry of entries.filter(d => d.player_id === playerId)) {
     const p = entry.payload;
-    if (entry.kind === 'preseason' && state.preseasonLocked && state.characters.filter(c=>c.startingRole==='Traitor').length === 3) {
-      const correct = p.picks.filter(id => state.characters.find(c => c.id === id)?.startingRole === 'Traitor').length;
+    if (entry.kind === 'preseason' && state.preseasonLocked && predictionResult.length === 3) {
+      const correct = p.picks.filter(id => predictionResult.includes(id)).length;
       preseason = correct * 5 + (correct === 3 ? 5 : 0);
     }
     if (entry.kind === 'final' && state.finalLocked && p.side === state.winner) final = 25;

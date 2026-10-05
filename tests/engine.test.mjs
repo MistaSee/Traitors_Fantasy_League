@@ -51,3 +51,13 @@ test('episode 1 scores all applicable events, including captain penalties, and k
  assert.equal(score(s,entries,'a').weekly,19);
  assert.equal(characterPoints(s,2,'4'),10,'Later episodes retain all scoring rules');
 });
+
+ test('confirmed preseason trio can include a recruit without rewriting starting roles',()=>{
+ const s=fixture();s.preseasonLocked=true;s.preseasonTraitors=['4','5','7'];
+ const e=[{player_id:'a',kind:'preseason',payload:{picks:['4','5','7']}}];
+ assert.equal(s.characters.find(c=>c.id==='7').startingRole,'Faithful');
+ assert.equal(score(s,e,'a').preseason,20);
+ e[0].payload.picks=['4','5','6'];assert.equal(score(s,e,'a').preseason,10);
+ for(const result of [['4','4','7'],['4','5','missing'],['4','5'],[]]){s.preseasonTraitors=result;assert.equal(score(s,e,'a').preseason,0);}
+ s.preseasonTraitors=['4','5','7'];s.preseasonLocked=false;assert.equal(score(s,e,'a').preseason,0);
+ });
